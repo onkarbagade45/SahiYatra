@@ -114,17 +114,36 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
+      gap: 8px;
     }
-    .hero-bus-pill {
+    .bus-toggle-group {
+      display: inline-flex;
+      background: rgba(58, 36, 24, 0.75);
+      padding: 3px;
+      border-radius: 999px;
+      border: 1px solid rgba(213, 196, 174, 0.25);
+    }
+    .bus-toggle-btn {
       font-size: 10px;
       font-weight: 800;
-      letter-spacing: 0.8px;
-      padding: 4px 10px;
+      letter-spacing: 0.4px;
+      padding: 4px 11px;
       border-radius: 999px;
+      border: 0;
+      background: transparent;
+      color: rgba(213, 196, 174, 0.75);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .bus-toggle-btn.active-lalpari {
+      background: linear-gradient(135deg, #b91c1c, #dc2626);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.45);
+    }
+    .bus-toggle-btn.active-shivshahi {
       background: linear-gradient(135deg, var(--caramel), var(--cognac));
-      color: #FAF6F2;
-      text-transform: uppercase;
-      box-shadow: 0 4px 12px rgba(107, 74, 46, 0.35);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(107, 74, 46, 0.45);
     }
     .hero-bus-plate {
       font-family: monospace;
@@ -400,84 +419,107 @@
         <p>Find the right auto, bus and connecting ride in a single trip plan with clear fares and local travel support.</p>
       </div>
 
-      <div class="hero-bus-card" aria-label="Featured bus: MSRTC Shivshahi AC Express">
+      <div class="hero-bus-card" aria-label="Featured bus: MSRTC Lal Pari (लालपरी)">
         <div class="hero-bus-header">
-          <span class="hero-bus-pill">MSRTC SHIVSHAHI</span>
-          <span class="hero-bus-plate">MH 13 CU 4491</span>
+          <div class="bus-toggle-group">
+            <button type="button" class="bus-toggle-btn active-lalpari" id="btnToggleLalpari">🔴 लालपरी LAL PARI</button>
+            <button type="button" class="bus-toggle-btn" id="btnToggleShivshahi">🔵 शिवशाही SHIVSHAHI</button>
+          </div>
+          <span class="hero-bus-plate" id="busPlateDisplay">MH 13 Q 5421</span>
         </div>
 
         <div class="bus-svg-container">
-          <svg viewBox="0 0 380 115" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MSRTC Shivshahi Express Bus Design">
+          <svg viewBox="0 0 380 115" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" id="busSvgElement" aria-label="MSRTC Lal Pari Bus Design">
             <!-- Ground Road Shadow -->
             <ellipse cx="190" cy="106" rx="165" ry="5.5" fill="rgba(0,0,0,0.35)"/>
             
             <!-- Headlight Cone -->
             <polygon points="340,70 378,63 378,86 340,80" fill="url(#headlightGlow)" opacity="0.6"/>
 
-            <!-- Main Coach Body -->
-            <path d="M 32,22 C 32,16 36,12 44,12 L 320,12 C 344,12 355,24 358,45 L 362,75 C 362,82 356,86 348,86 L 36,86 C 29,86 25,80 25,74 L 25,30 C 25,25 28,22 32,22 Z" fill="url(#busBodyGradient)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+            <!-- Main Coach Body (Lal Pari Red & Cream) -->
+            <!-- Lower Red Body -->
+            <path id="busLowerBody" d="M 32,46 L 360,46 L 362,75 C 362,82 356,86 348,86 L 36,86 C 29,86 25,80 25,74 L 25,50 C 25,48 28,46 32,46 Z" fill="url(#lalpariRedGradient)" stroke="rgba(255,255,255,0.3)" stroke-width="1.2"/>
+            
+            <!-- Upper Cream Roof & Window Band -->
+            <path id="busUpperRoof" d="M 32,22 C 32,16 36,12 44,12 L 320,12 C 344,12 355,24 358,45 L 360,46 L 25,46 C 25,30 28,22 32,22 Z" fill="url(#lalpariCreamGradient)" stroke="rgba(255,255,255,0.35)" stroke-width="1.2"/>
 
             <!-- Windshield & Front Slope -->
             <path d="M 298,16 L 344,16 C 352,16 356,22 357,32 L 358,48 L 298,48 Z" fill="#0f172a" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
             <path d="M 306,18 L 336,18 L 344,46 L 314,46 Z" fill="url(#glassReflection)" opacity="0.4"/>
 
-            <!-- LED Signboard (Orange Glow) -->
-            <rect x="304" y="20" width="40" height="10" rx="2" fill="#090d16" stroke="rgba(245,158,11,0.5)" stroke-width="0.7"/>
-            <text x="324" y="27" fill="#f59e0b" font-size="5" font-family="monospace" font-weight="900" text-anchor="middle">सोलापूर - पुणे</text>
+            <!-- Traditional MSRTC Front Route Board -->
+            <rect id="busBoardBg" x="304" y="20" width="40" height="11" rx="2" fill="#090d16" stroke="#fbbf24" stroke-width="0.8"/>
+            <text id="busBoardText" x="324" y="27.5" fill="#fbbf24" font-size="5" font-family="'Noto Sans Devanagari', sans-serif" font-weight="900" text-anchor="middle">सोलापूर ➔ पुणे</text>
 
-            <!-- Panoramic Passenger Windows -->
-            <g fill="#101b33" stroke="rgba(255,255,255,0.22)" stroke-width="0.8">
-              <rect x="42" y="22" width="46" height="26" rx="4"/>
-              <rect x="94" y="22" width="46" height="26" rx="4"/>
-              <rect x="146" y="22" width="46" height="26" rx="4"/>
-              <rect x="198" y="22" width="46" height="26" rx="4"/>
-              <rect x="250" y="22" width="42" height="26" rx="4"/>
+            <!-- Panoramic Passenger Windows with Traditional Metal Sliders -->
+            <g fill="#1a1412" stroke="rgba(255,255,255,0.25)" stroke-width="0.8">
+              <rect x="42" y="22" width="46" height="24" rx="3"/>
+              <rect x="94" y="22" width="46" height="24" rx="3"/>
+              <rect x="146" y="22" width="46" height="24" rx="3"/>
+              <rect x="198" y="22" width="46" height="24" rx="3"/>
+              <rect x="250" y="22" width="42" height="24" rx="3"/>
             </g>
 
-            <!-- Window Ambient Light & Passenger Silhouettes -->
-            <rect x="44" y="24" width="42" height="6" rx="2" fill="#38bdf8" opacity="0.3"/>
-            <rect x="96" y="24" width="42" height="6" rx="2" fill="#38bdf8" opacity="0.3"/>
-            <rect x="148" y="24" width="42" height="6" rx="2" fill="#38bdf8" opacity="0.3"/>
-            <rect x="200" y="24" width="42" height="6" rx="2" fill="#38bdf8" opacity="0.3"/>
-            <rect x="252" y="24" width="38" height="6" rx="2" fill="#38bdf8" opacity="0.3"/>
+            <!-- Passenger Window Slider Bars -->
+            <line x1="42" y1="34" x2="88" y2="34" stroke="rgba(255,255,255,0.35)" stroke-width="0.8"/>
+            <line x1="94" y1="34" x2="140" y2="34" stroke="rgba(255,255,255,0.35)" stroke-width="0.8"/>
+            <line x1="146" y1="34" x2="192" y2="34" stroke="rgba(255,255,255,0.35)" stroke-width="0.8"/>
+            <line x1="198" y1="34" x2="244" y2="34" stroke="rgba(255,255,255,0.35)" stroke-width="0.8"/>
+            <line x1="250" y1="34" x2="292" y2="34" stroke="rgba(255,255,255,0.35)" stroke-width="0.8"/>
 
-            <!-- Palette Livery Stripes -->
-            <path d="M 25,56 L 358,56 L 359,62 L 25,62 Z" fill="#6B4A2E"/>
-            <path d="M 25,63 L 360,63 L 360,66 L 25,66 Z" fill="#D5C4AE" opacity="0.95"/>
-            <path d="M 25,67 L 360,67 L 361,72 L 25,72 Z" fill="#A88462"/>
+            <!-- Window Warm Ambient Light -->
+            <rect x="44" y="24" width="42" height="7" rx="2" fill="#fde047" opacity="0.25"/>
+            <rect x="96" y="24" width="42" height="7" rx="2" fill="#fde047" opacity="0.25"/>
+            <rect x="148" y="24" width="42" height="7" rx="2" fill="#fde047" opacity="0.25"/>
+            <rect x="200" y="24" width="42" height="7" rx="2" fill="#fde047" opacity="0.25"/>
+            <rect x="252" y="24" width="38" height="7" rx="2" fill="#fde047" opacity="0.25"/>
 
-            <!-- Bus Branding -->
-            <text x="175" y="60.5" fill="#ffffff" font-size="5" font-weight="900" letter-spacing="1">MSRTC SHIVSHAHI • SOLAPUR DIV</text>
+            <!-- Lal Pari Classic Yellow Waistline Belt -->
+            <path id="busStripe1" d="M 25,47 L 360,47 L 360,52 L 25,52 Z" fill="#fbbf24"/>
+            <path id="busStripe2" d="M 25,53 L 360,53 L 360,55 L 25,55 Z" fill="#ffffff" opacity="0.95"/>
+
+            <!-- Bus Branding (Signature MSRTC Lal Pari Marathi Typography) -->
+            <text id="busSideText" x="175" y="66" fill="#ffffff" font-size="5.5" font-family="'Noto Sans Devanagari', sans-serif" font-weight="900" letter-spacing="0.5">महाराष्ट्र राज्य मार्ग परिवहन महामंडळ • लालपरी</text>
 
             <!-- Wheel Arches -->
             <path d="M 68,86 A 18,18 0 0,1 104,86 Z" fill="#0b1120"/>
             <path d="M 276,86 A 18,18 0 0,1 312,86 Z" fill="#0b1120"/>
 
-            <!-- Alloy Wheels with Tire Tread & Chrome Hub -->
-            <circle cx="86" cy="86" r="14" fill="#1e293b" stroke="#64748b" stroke-width="2.5"/>
-            <circle cx="86" cy="86" r="6" fill="#94a3b8"/>
-            <circle cx="86" cy="86" r="2.5" fill="#0f172a"/>
+            <!-- Sturdy Heavy Duty Wheels with Lug Hubs -->
+            <circle cx="86" cy="86" r="14" fill="#1e1b18" stroke="#78716c" stroke-width="2.5"/>
+            <circle cx="86" cy="86" r="6" fill="#a8a29e"/>
+            <circle cx="86" cy="86" r="2.5" fill="#0c0a09"/>
 
-            <circle cx="294" cy="86" r="14" fill="#1e293b" stroke="#64748b" stroke-width="2.5"/>
-            <circle cx="294" cy="86" r="6" fill="#94a3b8"/>
-            <circle cx="294" cy="86" r="2.5" fill="#0f172a"/>
+            <circle cx="294" cy="86" r="14" fill="#1e1b18" stroke="#78716c" stroke-width="2.5"/>
+            <circle cx="294" cy="86" r="6" fill="#a8a29e"/>
+            <circle cx="294" cy="86" r="2.5" fill="#0c0a09"/>
 
-            <!-- Dual Headlights & Tail Light -->
-            <rect x="358" y="70" width="3" height="7" rx="1.5" fill="#fef08a"/>
-            <rect x="24.5" y="68" width="2" height="7" rx="1" fill="#ef4444"/>
+            <!-- Headlights (Warm Bulb Amber) & Red Tail Lamp -->
+            <circle cx="359" cy="73" r="3.5" fill="#fef08a" stroke="#d97706" stroke-width="0.8"/>
+            <rect x="24" y="67" width="2.5" height="8" rx="1" fill="#ef4444"/>
 
             <defs>
-              <linearGradient id="busBodyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient id="lalpariRedGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#dc2626"/>
+                <stop offset="35%" stop-color="#b91c1c"/>
+                <stop offset="100%" stop-color="#881337"/>
+              </linearGradient>
+              <linearGradient id="lalpariCreamGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stop-color="#ffffff"/>
-                <stop offset="45%" stop-color="#f8fafc"/>
-                <stop offset="100%" stop-color="#e2e8f0"/>
+                <stop offset="50%" stop-color="#FAF6F2"/>
+                <stop offset="100%" stop-color="#e7ded4"/>
+              </linearGradient>
+              <linearGradient id="shivshahiBodyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="45%" stop-color="#FAF6F2"/>
+                <stop offset="100%" stop-color="#D5C4AE"/>
               </linearGradient>
               <linearGradient id="glassReflection" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8"/>
                 <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
               </linearGradient>
               <linearGradient id="headlightGlow" x1="0%" y1="50%" x2="100%" y2="50%">
-                <stop offset="0%" stop-color="#fef08a" stop-opacity="0.7"/>
+                <stop offset="0%" stop-color="#fef08a" stop-opacity="0.75"/>
                 <stop offset="100%" stop-color="#fef08a" stop-opacity="0"/>
               </linearGradient>
             </defs>
@@ -486,12 +528,12 @@
 
         <div class="hero-bus-meta">
           <div>
-            <span>CLASS & COMFORT</span>
-            <strong>2x2 Air Suspension AC</strong>
+            <span>महाराष्ट्र जीवनवाहिनी</span>
+            <strong id="busClassTitle">साधी जलद बस (Lal Pari)</strong>
           </div>
           <div>
-            <span>CORRIDOR PLATFORM</span>
-            <strong>Bay #4 · Solapur Stand</strong>
+            <span>स्थानक फलाट</span>
+            <strong id="busBayTitle">फलाट क्र. ४ • सोलापूर आगार</strong>
           </div>
         </div>
       </div>
@@ -761,6 +803,49 @@
         if (action === 'safety') openSheet('Safety center', 'Emergency support, boarding PIN and 112 police assistance.', 'Open SOS 112', 'safety');
       });
     });
+
+    // Bus Model Interactive Toggle (Lal Pari vs Shivshahi)
+    const btnLalpari = document.getElementById('btnToggleLalpari');
+    const btnShivshahi = document.getElementById('btnToggleShivshahi');
+    const busLowerBody = document.getElementById('busLowerBody');
+    const busUpperRoof = document.getElementById('busUpperRoof');
+    const busBoardText = document.getElementById('busBoardText');
+    const busSideText = document.getElementById('busSideText');
+    const busPlateDisplay = document.getElementById('busPlateDisplay');
+    const busClassTitle = document.getElementById('busClassTitle');
+    const busBayTitle = document.getElementById('busBayTitle');
+    const busStripe1 = document.getElementById('busStripe1');
+    const busStripe2 = document.getElementById('busStripe2');
+
+    if (btnLalpari && btnShivshahi) {
+      btnLalpari.addEventListener('click', () => {
+        btnLalpari.className = 'bus-toggle-btn active-lalpari';
+        btnShivshahi.className = 'bus-toggle-btn';
+        busLowerBody.setAttribute('fill', 'url(#lalpariRedGradient)');
+        busUpperRoof.setAttribute('fill', 'url(#lalpariCreamGradient)');
+        busStripe1.setAttribute('fill', '#fbbf24');
+        busStripe2.setAttribute('fill', '#ffffff');
+        busSideText.textContent = 'महाराष्ट्र राज्य मार्ग परिवहन महामंडळ • लालपरी';
+        busBoardText.textContent = 'सोलापूर ➔ पुणे';
+        busPlateDisplay.textContent = 'MH 13 Q 5421';
+        busClassTitle.textContent = 'साधी जलद बस (Lal Pari)';
+        busBayTitle.textContent = 'फलाट क्र. ४ • सोलापूर आगार';
+      });
+
+      btnShivshahi.addEventListener('click', () => {
+        btnShivshahi.className = 'bus-toggle-btn active-shivshahi';
+        btnLalpari.className = 'bus-toggle-btn';
+        busLowerBody.setAttribute('fill', 'url(#shivshahiBodyGradient)');
+        busUpperRoof.setAttribute('fill', 'url(#shivshahiBodyGradient)');
+        busStripe1.setAttribute('fill', '#6B4A2E');
+        busStripe2.setAttribute('fill', '#A88462');
+        busSideText.textContent = 'MSRTC SHIVSHAHI • SOLAPUR DIV';
+        busBoardText.textContent = 'SHIVSHAHI AC';
+        busPlateDisplay.textContent = 'MH 13 CU 4491';
+        busClassTitle.textContent = '2x2 Air Suspension AC Pushback';
+        busBayTitle.textContent = 'Bay #4 · Solapur AC Terminal';
+      });
+    }
 
     document.getElementById('languageButton').addEventListener('click', event => {
       event.currentTarget.textContent = event.currentTarget.textContent === 'MR' ? 'EN' : 'MR';
