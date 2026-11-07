@@ -3,365 +3,501 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SahiYatra — Liquid Glass Transit</title>
+  <title>SahiYatra | Maharashtra Travel</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --ink: #fff7f4;
-      --muted: rgba(255, 247, 244, .68);
-      --glass: rgba(255, 196, 184, .13);
-      --glass-strong: rgba(255, 184, 169, .22);
-      --line: rgba(255, 221, 213, .24);
-      --red: #d52b35;
-      --orange: #ff6a4d;
+      --navy: #10213e;
+      --blue: #3156d3;
+      --pink: #b45c8c;
+      --cream: #f7f7f2;
+      --white: #fff;
+      --muted: #687187;
+      --line: rgba(16, 33, 62, .10);
+      --shadow: 0 18px 50px rgba(37, 49, 86, .12);
     }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      min-height: 100vh;
-      font-family: Manrope, "Noto Sans Devanagari", sans-serif;
-      color: var(--ink);
-      background:
-        linear-gradient(140deg, rgba(7, 26, 66, 0.88) 0%, rgba(15, 23, 42, 0.92) 55%, rgba(74, 17, 85, 0.86) 100%),
-        url('wallpaper.jpg') center top / cover no-repeat fixed;
-      overflow-x: hidden;
+      font-family: "DM Sans", "Noto Sans Devanagari", sans-serif;
+      color: var(--navy);
+      background: var(--cream);
     }
-    body.light-glass {
-      background:
-        linear-gradient(140deg, rgba(219, 234, 254, 0.90) 0%, rgba(237, 233, 254, 0.93) 55%, rgba(250, 232, 255, 0.90) 100%),
-        url('wallpaper.jpg') center top / cover no-repeat fixed;
-      color: #172554;
-    }
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E");
-      opacity: .25;
-    }
-    button { font: inherit; }
-    .app {
-      width: min(1180px, calc(100% - 32px));
-      min-height: calc(100vh - 32px);
-      margin: 16px auto;
-      display: grid;
-      grid-template-columns: 210px minmax(0, 1fr);
-      border: 1px solid var(--line);
-      border-radius: 36px;
-      overflow: hidden;
-      background: rgba(25, 31, 112, .38);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      box-shadow: 0 30px 100px rgba(18, 0, 2, .5), inset 0 1px 0 rgba(255,255,255,.12);
-    }
-    .light-glass .app {
-      --ink: #172554;
-      --muted: rgba(30, 41, 59, .68);
-      --glass: rgba(255, 255, 255, .30);
-      --glass-strong: rgba(255, 255, 255, .48);
-      --line: rgba(255, 255, 255, .65);
-      background: rgba(255, 255, 255, .32);
-      box-shadow: 0 30px 100px rgba(67, 56, 202, .18), inset 0 1px 0 rgba(255,255,255,.78);
-    }
-    .sidebar {
-      padding: 24px 18px;
-      border-right: 1px solid var(--line);
-      background: rgba(255, 255, 255, .055);
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .topbar {
+      height: 76px;
+      padding: 0 clamp(20px, 5vw, 72px);
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255,255,255,.92);
+      border-bottom: 1px solid var(--line);
+      position: relative;
+      z-index: 10;
     }
-    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 34px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; }
     .brand-mark {
-      width: 42px; height: 42px; border-radius: 14px;
+      width: 38px; height: 38px; border-radius: 50%;
       display: grid; place-items: center;
-      background: linear-gradient(145deg, rgba(255,255,255,.34), rgba(255,255,255,.08));
-      border: 1px solid var(--line);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 9px 20px rgba(45,0,4,.25);
+      color: white;
+      background: linear-gradient(135deg, var(--blue), var(--pink));
+      box-shadow: 0 8px 18px rgba(49,86,211,.25);
     }
-    .brand strong { font-size: 17px; letter-spacing: -.4px; }
-    .brand span { display: block; font-size: 9px; color: var(--muted); margin-top: 2px; }
-    .nav { display: grid; gap: 7px; }
-    .nav button {
-      border: 0; color: var(--muted); background: transparent;
-      min-height: 44px; border-radius: 14px; padding: 0 12px;
-      text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px;
-      transition: .18s ease;
+    .desktop-nav { display: flex; align-items: center; gap: 28px; }
+    .desktop-nav button {
+      border: 0; background: transparent; color: var(--muted); font-weight: 600;
+      padding: 10px 0;
     }
-    .nav button.active {
-      color: white; background: var(--glass-strong);
-      border: 1px solid var(--line);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.16);
-    }
-    .nav button:hover { color: white; transform: translateX(2px); }
-    .side-status {
-      margin-top: auto; border-radius: 18px; padding: 14px;
-      background: linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
-      border: 1px solid var(--line);
-    }
-    .side-status small { color: var(--muted); }
-    .side-status strong { display: block; margin-top: 8px; font-size: 13px; }
-    main { min-width: 0; padding: 18px 22px 24px; }
-    .topbar { height: 54px; display: flex; align-items: center; justify-content: space-between; }
-    .search {
-      width: 330px; height: 42px; border-radius: 14px;
-      border: 1px solid var(--line); background: rgba(255,255,255,.09);
-      display: flex; align-items: center; gap: 10px; padding: 0 13px;
-      color: var(--muted); backdrop-filter: blur(12px);
-    }
-    .search input { flex: 1; min-width: 0; border: 0; outline: 0; color: white; background: transparent; }
-    .search input::placeholder { color: rgba(255,255,255,.5); }
-    .controls { display: flex; gap: 8px; }
+    .desktop-nav button.active { color: var(--navy); border-bottom: 2px solid var(--blue); }
+    .top-actions { display: flex; gap: 8px; align-items: center; }
     .icon-button {
-      height: 42px; min-width: 42px; border-radius: 14px;
-      border: 1px solid var(--line); color: white;
-      background: rgba(255,255,255,.09); cursor: pointer;
-      display: grid; place-items: center;
+      height: 40px; min-width: 40px; border-radius: 12px; border: 1px solid var(--line);
+      background: white; color: var(--navy);
     }
-    .sos {
-      padding: 0 14px; color: white; border: 1px solid rgba(255,255,255,.32);
-      background: linear-gradient(135deg, #38bdf8, #d946ef);
-      box-shadow: 0 10px 24px rgba(217, 70, 239, .28);
-      font-weight: 800; font-size: 12px; letter-spacing: .2px;
-    }
-    .dashboard {
-      display: grid;
-      grid-template-columns: minmax(0, 1.45fr) minmax(260px, .55fr);
-      gap: 14px;
-      margin-top: 14px;
-    }
-    .glass {
-      border: 1px solid var(--line);
-      background: linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,.065));
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 18px 44px rgba(50,0,5,.18);
-      backdrop-filter: blur(22px);
-      -webkit-backdrop-filter: blur(22px);
-    }
+    .sos { border: 0; color: white; background: #c33c55; font-weight: 800; padding: 0 14px; }
+    main { overflow: hidden; }
     .hero {
-      min-height: 240px; border-radius: 28px; padding: 26px;
-      display: grid; grid-template-columns: 1fr 180px; gap: 18px;
-      position: relative; overflow: hidden;
+      min-height: 480px;
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 36px;
+      padding: 56px clamp(20px, 6vw, 84px);
       background:
-        linear-gradient(90deg, rgba(7, 19, 48, 0.92) 0%, rgba(7, 26, 66, 0.80) 50%, rgba(15, 23, 42, 0.40) 100%),
-        url('wallpaper.jpg') right center / cover no-repeat;
-      border: 1px solid var(--line);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 20px 50px rgba(0, 0, 0, 0.35);
+        linear-gradient(90deg, rgba(12,28,58,.88) 0%, rgba(12,28,58,.68) 55%, rgba(12,28,58,.25) 100%),
+        url("wallpaper.jpg") center 48% / cover no-repeat;
+      color: white;
     }
-    .light-glass .hero {
-      background:
-        linear-gradient(90deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.82) 52%, rgba(255, 255, 255, 0.40) 100%),
-        url('wallpaper.jpg') right center / cover no-repeat;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 20px 50px rgba(67, 56, 202, 0.15);
+    .hero-content { max-width: 580px; }
+    .hero-kicker { text-transform: uppercase; letter-spacing: 2.5px; font-size: 12px; font-weight: 700; opacity: .84; }
+    .hero h1 {
+      margin: 14px 0 18px;
+      max-width: 610px;
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: clamp(40px, 5.2vw, 68px);
+      line-height: .98;
+      letter-spacing: -2px;
     }
-    .hero::after {
-      content: ""; position: absolute; width: 220px; height: 220px;
-      right: -65px; bottom: -105px; border-radius: 50%;
-      border: 34px solid rgba(255, 169, 153, .09);
-      box-shadow: inset 0 0 30px rgba(255,255,255,.08);
+    .hero p { max-width: 480px; margin: 0; line-height: 1.7; color: rgba(255,255,255,.86); }
+    .hero-bus-card {
+      width: min(420px, 100%);
+      border-radius: 26px;
+      background: rgba(11, 23, 48, 0.76);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(28px) saturate(150%);
+      -webkit-backdrop-filter: blur(28px) saturate(150%);
+      padding: 20px 22px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      animation: float-bus 4s ease-in-out infinite;
+      z-index: 2;
     }
-    .eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 1.8px; color: rgba(255,255,255,.58); }
-    .hero h1 { margin: 12px 0 8px; font-size: clamp(32px, 4vw, 54px); line-height: .96; letter-spacing: -3px; }
-    .hero h1 em { display: block; font-family: Georgia, serif; font-weight: 400; color: #ffc4b8; }
-    .route-line { margin-top: 18px; display: flex; align-items: center; gap: 10px; font-size: 12px; }
-    .route-line .dot { width: 7px; height: 7px; border-radius: 50%; background: white; box-shadow: 0 0 14px white; }
-    .route-line .path { width: 74px; height: 1px; background: linear-gradient(90deg, white, transparent); }
-    .weather {
-      border-radius: 22px; padding: 16px; z-index: 1;
-      background: rgba(70, 5, 10, .28); border: 1px solid var(--line);
+    @keyframes float-bus {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
     }
-    .weather strong { font-size: 38px; letter-spacing: -2px; }
-    .weather p { margin: 4px 0 14px; font-size: 11px; color: var(--muted); }
-    .weather-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-    .weather-grid span { font-size: 9px; text-align: center; color: var(--muted); }
-    .weather-grid b { display: block; font-size: 10px; color: white; margin-top: 4px; }
-    .side-column { display: grid; gap: 14px; }
-    .reminders { border-radius: 28px; padding: 18px; min-height: 112px; }
-    .reminders-head { display: flex; justify-content: space-between; align-items: center; }
-    .reminders h3 { margin: 0; font-size: 14px; }
-    .reminders .count { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.12); font-size: 10px; }
-    .reminder { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); margin-top: 12px; }
-    .reminder .ring { width: 12px; height: 12px; border: 1px solid rgba(255,255,255,.58); border-radius: 50%; }
-    .quick-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .quick {
-      min-height: 94px; border-radius: 22px; padding: 14px;
-      border: 1px solid var(--line); background: rgba(255,255,255,.09);
-      cursor: pointer; text-align: left; color: white;
+    .hero-bus-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .hero-bus-pill {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ea580c, #f59e0b);
+      color: white;
+      text-transform: uppercase;
+      box-shadow: 0 4px 12px rgba(234, 88, 12, 0.35);
+    }
+    .hero-bus-plate {
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #93c5fd;
+      background: rgba(30, 58, 138, 0.5);
+      padding: 3px 9px;
+      border-radius: 8px;
+      border: 1px solid rgba(147, 197, 253, 0.3);
+    }
+    .bus-svg-container {
+      width: 100%;
+      margin: 10px 0;
+    }
+    .bus-svg-container svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 12px 24px rgba(0,0,0,0.4));
+    }
+    .hero-bus-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 11px;
+    }
+    .hero-bus-meta div span {
+      display: block;
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 10px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+    .hero-bus-meta div strong {
+      color: white;
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .search-card {
+      width: min(1120px, calc(100% - 40px));
+      margin: -48px auto 0;
+      position: relative;
+      z-index: 4;
+      border-radius: 20px;
+      background: rgba(255,255,255,.88);
+      border: 1px solid rgba(255,255,255,.7);
+      box-shadow: var(--shadow);
       backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 190px 150px;
+      gap: 8px;
     }
-    .quick b { display: block; margin-top: 18px; font-size: 12px; }
-    .quick span { font-size: 9px; color: var(--muted); }
-    .quick.active { background: rgba(255,255,255,.23); box-shadow: inset 0 1px 0 rgba(255,255,255,.22); }
-    .stories { margin-top: 14px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .field {
+      min-height: 68px;
+      border-right: 1px solid var(--line);
+      padding: 10px 14px;
+    }
+    .field label { display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 7px; }
+    .field input, .field select {
+      width: 100%; border: 0; outline: 0; background: transparent; color: var(--navy);
+      font-size: 15px; font-weight: 700;
+    }
+    .search-button {
+      border: 0; border-radius: 14px; color: white; font-weight: 800;
+      background: linear-gradient(135deg, var(--blue), var(--pink));
+      box-shadow: 0 12px 24px rgba(49,86,211,.22);
+    }
+    .content { width: min(1120px, calc(100% - 40px)); margin: 52px auto 90px; }
+    .section-heading { display: flex; justify-content: space-between; align-items: end; margin-bottom: 18px; }
+    .section-heading h2 { margin: 0; font-family: "Playfair Display", Georgia, serif; font-size: 34px; letter-spacing: -.7px; }
+    .section-heading p { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
+    .section-heading button { border: 0; background: transparent; color: var(--blue); font-weight: 800; }
+    .stories { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 42px; }
     .story {
-      height: 90px; border-radius: 22px; border: 1px solid var(--line);
-      background: rgba(255,255,255,.09); color: white; cursor: pointer;
-      display: grid; place-items: center; text-align: center; padding: 9px;
+      border: 1px solid var(--line); border-radius: 18px; min-height: 118px;
+      padding: 14px; background: white; text-align: left; color: var(--navy);
+      box-shadow: 0 8px 24px rgba(37,49,86,.06);
+      transition: .2s ease;
     }
-    .story:hover { background: rgba(255,255,255,.17); }
-    .story-icon { width: 38px; height: 38px; border-radius: 13px; display: grid; place-items: center; background: rgba(255,255,255,.12); }
-    .story strong { display: block; font-size: 11px; }
-    .story small { display: block; color: var(--muted); margin-top: 2px; font-size: 8px; }
-    .feed { margin-top: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .story:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .story-icon {
+      width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center;
+      background: #edf1ff; color: var(--blue); font-weight: 800; margin-bottom: 12px;
+    }
+    .story strong { display: block; font-size: 14px; }
+    .story small { display: block; color: var(--muted); margin-top: 4px; }
+    .trip-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     .trip-card {
-      min-height: 150px; border-radius: 24px; padding: 16px; cursor: pointer;
-      border: 1px solid var(--line); background: rgba(255,255,255,.085);
-      transition: .18s ease; position: relative; overflow: hidden;
+      border: 1px solid var(--line); border-radius: 18px; background: white;
+      padding: 18px; min-height: 190px; position: relative; cursor: pointer;
+      box-shadow: 0 10px 30px rgba(37,49,86,.06); transition: .2s ease;
     }
-    .trip-card:hover { transform: translateY(-3px); background: rgba(255,255,255,.14); }
-    .trip-card.featured { grid-column: span 2; background: linear-gradient(135deg, rgba(255,255,255,.19), rgba(255,255,255,.07)); }
-    .trip-card .badge { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; padding: 6px 8px; border-radius: 999px; background: rgba(255,255,255,.12); }
-    .trip-card h3 { margin: 18px 0 5px; font-size: 17px; letter-spacing: -.5px; }
-    .trip-card p { margin: 0; color: var(--muted); font-size: 10px; }
-    .trip-card .fare { position: absolute; right: 16px; bottom: 15px; font-size: 22px; font-weight: 800; }
-    .trip-card .legs { display: flex; gap: 8px; margin-top: 14px; font-size: 9px; color: var(--muted); }
+    .trip-card:hover { transform: translateY(-4px); border-color: rgba(49,86,211,.24); box-shadow: var(--shadow); }
+    .trip-card.featured { grid-column: span 2; background: linear-gradient(135deg, white 55%, #eef2ff); }
+    .badge {
+      display: inline-block; border-radius: 999px; padding: 7px 10px;
+      background: #edf1ff; color: var(--blue); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .trip-card h3 { margin: 16px 0 6px; font-size: 20px; }
+    .trip-card p { margin: 0; color: var(--muted); font-size: 12px; }
+    .legs { display: flex; gap: 8px; margin-top: 18px; font-size: 11px; color: var(--muted); }
+    .fare { position: absolute; right: 18px; bottom: 18px; font-size: 24px; }
     .bottom-nav { display: none; }
     .sheet {
-      position: fixed; inset: 0; z-index: 20; background: rgba(16,0,2,.58);
-      display: none; place-items: end center; padding: 20px;
-      backdrop-filter: blur(12px);
+      position: fixed; inset: 0; z-index: 30; display: none; place-items: end center;
+      padding: 20px; background: rgba(16,33,62,.42); backdrop-filter: blur(8px);
     }
     .sheet.open { display: grid; }
-    .sheet-panel { width: min(500px, 100%); border-radius: 28px; border: 1px solid var(--line); padding: 22px; background: rgba(98, 18, 26, .88); box-shadow: 0 30px 80px rgba(0,0,0,.45); }
-    .sheet-panel h2 { margin: 8px 0; }
-    .sheet-panel p { color: var(--muted); font-size: 12px; }
-    .sheet-actions { display: grid; grid-template-columns: 1fr 100px; gap: 8px; margin-top: 18px; }
-    .sheet-actions button { height: 48px; border-radius: 15px; border: 1px solid var(--line); cursor: pointer; }
-    .book { background: white; color: #721018; font-weight: 800; }
-    .close { background: rgba(255,255,255,.09); color: white; }
+    .sheet-panel {
+      width: min(520px, 100%); background: rgba(255,255,255,.92); border-radius: 24px;
+      padding: 24px; box-shadow: 0 30px 80px rgba(16,33,62,.25);
+      border: 1px solid rgba(255,255,255,.75);
+      backdrop-filter: blur(22px);
+    }
+    .sheet-panel h2 { margin: 7px 0; }
+    .sheet-panel p { color: var(--muted); line-height: 1.6; font-size: 13px; }
+    .food-menu { display: none; max-height: 310px; overflow-y: auto; margin-top: 14px; }
+    .food-menu.open { display: grid; gap: 8px; }
+    .food-item {
+      display: grid; grid-template-columns: 1fr auto; align-items: center;
+      gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.64);
+    }
+    .food-item strong { display: block; font-size: 13px; }
+    .food-item small { display: block; margin-top: 4px; color: var(--muted); }
+    .quantity {
+      display: grid; grid-template-columns: 30px 28px 30px; align-items: center;
+      border: 1px solid var(--line); border-radius: 999px; overflow: hidden;
+    }
+    .quantity button { min-height: 30px; border: 0; background: transparent; color: var(--navy); font-weight: 800; }
+    .quantity span { text-align: center; font-size: 12px; }
+    .food-total { display: none; margin-top: 12px; font-weight: 800; }
+    .food-total.open { display: block; }
+    .sheet-actions { display: grid; grid-template-columns: 1fr 110px; gap: 8px; margin-top: 18px; }
+    .sheet-actions button { min-height: 48px; border-radius: 13px; border: 0; font-weight: 800; }
+    .book { color: white; background: var(--blue); }
+    .close { color: var(--navy); background: #edf0f5; }
+    body.dark {
+      --cream: #11172a; --navy: #eef2ff; --muted: #afb7cc; --white: #171e34; --line: rgba(255,255,255,.10);
+      background: #11172a;
+    }
+    body.dark .topbar { background: rgba(17,23,42,.95); }
+    body.dark .search-card { background: rgba(31,38,65,.92); }
+    body.dark .story, body.dark .trip-card { background: #171e34; }
+    body.dark .trip-card.featured { background: linear-gradient(135deg, #171e34 55%, #222b50); }
+    body.dark .icon-button { background: #171e34; color: #eef2ff; }
+    body.dark .sheet-panel { background: rgba(23,30,52,.94); color: #eef2ff; }
     @media (max-width: 900px) {
-      .app { grid-template-columns: 1fr; width: 100%; min-height: 100vh; margin: 0; border-radius: 0; border-left: 0; border-right: 0; }
-      .sidebar { display: none; }
-      main { padding-bottom: 88px; }
-      .search { width: min(280px, 55vw); }
-      .dashboard { grid-template-columns: 1fr; }
-      .side-column { grid-template-columns: 1fr 1fr; }
-      .stories { overflow-x: auto; display: flex; }
-      .story { min-width: 115px; }
-      .feed { grid-template-columns: 1fr 1fr; }
+      .topbar { height: 68px; padding: 0 20px; }
+      .desktop-nav { display: none; }
+      .hero {
+        min-height: auto;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 45px 20px 100px;
+        gap: 28px;
+      }
+      .hero-bus-card {
+        width: 100%;
+        max-width: 100%;
+      }
+      .search-card { grid-template-columns: 1fr 1fr; margin-top: -62px; }
+      .field { border-right: 0; border-bottom: 1px solid var(--line); }
+      .search-button { min-height: 56px; }
+      .stories { display: flex; overflow-x: auto; padding-bottom: 6px; }
+      .story { min-width: 150px; }
+      .trip-grid { grid-template-columns: 1fr 1fr; }
       .trip-card.featured { grid-column: span 2; }
       .bottom-nav {
-        display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; z-index: 10;
-        left: 12px; right: 12px; bottom: 10px; height: 64px; border-radius: 22px;
-        border: 1px solid var(--line); background: rgba(91, 14, 21, .82);
-        backdrop-filter: blur(20px); box-shadow: 0 15px 40px rgba(0,0,0,.3);
+        display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; z-index: 20;
+        left: 12px; right: 12px; bottom: 10px; height: 66px; border-radius: 18px;
+        border: 1px solid var(--line); background: rgba(255,255,255,.92);
+        backdrop-filter: blur(18px); box-shadow: 0 15px 40px rgba(16,33,62,.18);
       }
-      .bottom-nav button { border: 0; color: var(--muted); background: transparent; font-size: 9px; }
-      .bottom-nav button.active { color: white; }
+      .bottom-nav button { border: 0; background: transparent; color: var(--muted); font-size: 10px; }
+      .bottom-nav button.active { color: var(--blue); font-weight: 800; }
+      body.dark .bottom-nav { background: rgba(23,30,52,.94); }
+      .content { margin-bottom: 100px; }
     }
     @media (max-width: 560px) {
-      main { padding: 10px 12px 84px; }
-      .topbar { height: 48px; }
-      .search { width: 44px; padding: 0; justify-content: center; }
-      .search input { display: none; }
-      .controls { gap: 5px; }
-      .icon-button { height: 40px; min-width: 40px; }
-      .sos { min-width: 58px; padding: 0 9px; font-size: 10px; }
-      .hero { min-height: 240px; grid-template-columns: 1fr; border-radius: 24px; padding: 20px; }
-      .hero h1 { font-size: 40px; }
-      .weather { display: none; }
-      .side-column { grid-template-columns: 1fr; }
-      .reminders { min-height: 96px; }
-      .quick-grid { grid-template-columns: repeat(3, 1fr); }
-      .quick { min-height: 82px; padding: 11px; }
-      .feed { grid-template-columns: 1fr; }
+      .top-actions { gap: 5px; }
+      #languageButton { display: none; }
+      .hero { min-height: 390px; align-items: end; padding-bottom: 90px; }
+      .hero h1 { font-size: 43px; }
+      .hero p { font-size: 13px; }
+      .search-card { width: calc(100% - 24px); grid-template-columns: 1fr 1fr; }
+      .field { min-height: 62px; padding: 7px 9px; }
+      .field:nth-child(3) { border-bottom: 0; }
+      .search-button { grid-column: span 1; }
+      .content { width: calc(100% - 24px); margin-top: 42px; }
+      .section-heading h2 { font-size: 28px; }
+      .trip-grid { grid-template-columns: 1fr; }
       .trip-card.featured { grid-column: span 1; }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">◎</div>
-        <div><strong>SahiYatra</strong><span>Whole trip. One pass.</span></div>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">◎</span><span>SahiYatra</span></div>
+    <nav class="desktop-nav">
+      <button class="active" data-action="home">Discover</button>
+      <button data-action="search">Plan a trip</button>
+      <button data-action="trips">My trips</button>
+      <button data-action="food">Food stops</button>
+      <button data-action="safety">Safety</button>
+    </nav>
+    <div class="top-actions">
+      <button class="icon-button" id="languageButton" aria-label="Change language">MR</button>
+      <button class="icon-button" id="themeButton" aria-label="Switch theme">◐</button>
+      <button class="icon-button sos" id="sosButton">SOS 112</button>
+    </div>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <div class="hero-kicker">Explore Maharashtra</div>
+        <h1>Every road. One simple journey.</h1>
+        <p>Find the right auto, bus and connecting ride in a single trip plan with clear fares and local travel support.</p>
       </div>
-      <nav class="nav">
-        <button class="active" data-action="home">⌂ &nbsp; Home</button>
-        <button data-action="search">⌕ &nbsp; Search route</button>
-        <button data-action="trips">◇ &nbsp; My trips</button>
-        <button data-action="food">♢ &nbsp; Food stops</button>
-        <button data-action="safety">⊙ &nbsp; Safety</button>
-      </nav>
-      <div class="side-status">
-        <small>TRAVEL STATUS</small>
-        <strong>Solapur → Pune</strong>
-        <small>NH65 corridor active</small>
-      </div>
-    </aside>
 
-    <main>
-      <header class="topbar">
-        <div class="search"><span>⌕</span><input id="routeSearch" placeholder="Search Solapur or Pune" /></div>
-        <div class="controls">
-          <button class="icon-button" id="languageButton">MR</button>
-          <button class="icon-button" id="themeButton">◐</button>
-          <button class="icon-button sos" id="sosButton">SOS 112</button>
+      <div class="hero-bus-card" aria-label="Featured bus: MSRTC Shivshahi AC Express">
+        <div class="hero-bus-header">
+          <span class="hero-bus-pill">MSRTC SHIVSHAHI</span>
+          <span class="hero-bus-plate">MH 13 CU 4491</span>
         </div>
-      </header>
 
-      <section class="dashboard">
-        <article class="hero glass">
+        <div class="bus-svg-container">
+          <svg viewBox="0 0 380 115" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MSRTC Shivshahi Express Bus Design">
+            <!-- Ground Road Shadow -->
+            <ellipse cx="190" cy="106" rx="165" ry="5.5" fill="rgba(0,0,0,0.35)"/>
+            
+            <!-- Headlight Cone -->
+            <polygon points="340,70 378,63 378,86 340,80" fill="url(#headlightGlow)" opacity="0.6"/>
+
+            <!-- Main Coach Body -->
+            <path d="M 32,22 C 32,16 36,12 44,12 L 320,12 C 344,12 355,24 358,45 L 362,75 C 362,82 356,86 348,86 L 36,86 C 29,86 25,80 25,74 L 25,30 C 25,25 28,22 32,22 Z" fill="url(#busBodyGradient)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+
+            <!-- Windshield & Front Slope -->
+            <path d="M 298,16 L 344,16 C 352,16 356,22 357,32 L 358,48 L 298,48 Z" fill="#0f172a" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+            <path d="M 306,18 L 336,18 L 344,46 L 314,46 Z" fill="url(#glassReflection)" opacity="0.4"/>
+
+            <!-- LED Signboard (Orange Glow) -->
+            <rect x="304" y="20" width="40" height="10" rx="2" fill="#090d16" stroke="rgba(245,158,11,0.5)" stroke-width="0.7"/>
+            <text x="324" y="27" fill="#f59e0b" font-size="5" font-family="monospace" font-weight="900" text-anchor="middle">सोलापूर - पुणे</text>
+
+            <!-- Panoramic Passenger Windows -->
+            <g fill="#101b33" stroke="rgba(255,255,255,0.22)" stroke-width="0.8">
+              <rect x="42" y="22" width="46" height="26" rx="4"/>
+              <rect x="94" y="22" width="46" height="26" rx="4"/>
+              <rect x="146" y="22" width="46" height="26" rx="4"/>
+              <rect x="198" y="22" width="46" height="26" rx="4"/>
+              <rect x="250" y="22" width="42" height="26" rx="4"/>
+            </g>
+
+            <!-- Window Ambient Light & Passenger Silhouettes -->
+            <rect x="44" y="24" width="42" height="6" rx="2" fill="#38bdf8" opacity="0.3"/>
+            <rect x="96" y="24" width="42" height="6" rx="2" fill="#38bdf8" opacity="0.3"/>
+            <rect x="148" y="24" width="42" height="6" rx="2" fill="#38bdf8" opacity="0.3"/>
+            <rect x="200" y="24" width="42" height="6" rx="2" fill="#38bdf8" opacity="0.3"/>
+            <rect x="252" y="24" width="38" height="6" rx="2" fill="#38bdf8" opacity="0.3"/>
+
+            <!-- Authentic Shivshahi Livery Stripes -->
+            <path d="M 25,56 L 358,56 L 359,62 L 25,62 Z" fill="#ea580c"/>
+            <path d="M 25,63 L 360,63 L 360,66 L 25,66 Z" fill="#ffffff" opacity="0.9"/>
+            <path d="M 25,67 L 360,67 L 361,72 L 25,72 Z" fill="#2563eb"/>
+
+            <!-- Bus Branding -->
+            <text x="175" y="60.5" fill="#ffffff" font-size="5" font-weight="900" letter-spacing="1">MSRTC SHIVSHAHI • SOLAPUR DIV</text>
+
+            <!-- Wheel Arches -->
+            <path d="M 68,86 A 18,18 0 0,1 104,86 Z" fill="#0b1120"/>
+            <path d="M 276,86 A 18,18 0 0,1 312,86 Z" fill="#0b1120"/>
+
+            <!-- Alloy Wheels with Tire Tread & Chrome Hub -->
+            <circle cx="86" cy="86" r="14" fill="#1e293b" stroke="#64748b" stroke-width="2.5"/>
+            <circle cx="86" cy="86" r="6" fill="#94a3b8"/>
+            <circle cx="86" cy="86" r="2.5" fill="#0f172a"/>
+
+            <circle cx="294" cy="86" r="14" fill="#1e293b" stroke="#64748b" stroke-width="2.5"/>
+            <circle cx="294" cy="86" r="6" fill="#94a3b8"/>
+            <circle cx="294" cy="86" r="2.5" fill="#0f172a"/>
+
+            <!-- Dual Headlights & Tail Light -->
+            <rect x="358" y="70" width="3" height="7" rx="1.5" fill="#fef08a"/>
+            <rect x="24.5" y="68" width="2" height="7" rx="1" fill="#ef4444"/>
+
+            <defs>
+              <linearGradient id="busBodyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="45%" stop-color="#f8fafc"/>
+                <stop offset="100%" stop-color="#e2e8f0"/>
+              </linearGradient>
+              <linearGradient id="glassReflection" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="headlightGlow" x1="0%" y1="50%" x2="100%" y2="50%">
+                <stop offset="0%" stop-color="#fef08a" stop-opacity="0.7"/>
+                <stop offset="100%" stop-color="#fef08a" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="hero-bus-meta">
           <div>
-            <div class="eyebrow">Good morning, traveler</div>
-            <h1>Plan the whole.<em>Lock one fare.</em></h1>
-            <div class="route-line"><span class="dot"></span><b>Solapur</b><span class="path"></span><b>Pune</b><span class="dot"></span></div>
+            <span>CLASS & COMFORT</span>
+            <strong>2x2 Air Suspension AC</strong>
           </div>
-          <div class="weather">
-            <small class="eyebrow">Solapur</small>
-            <strong>29°</strong>
-            <p>Clear roads · Good conditions</p>
-            <div class="weather-grid">
-              <span>Now<b>29°</b></span><span>10 AM<b>31°</b></span><span>12 PM<b>33°</b></span><span>2 PM<b>32°</b></span>
-            </div>
+          <div>
+            <span>CORRIDOR PLATFORM</span>
+            <strong>Bay #4 · Solapur Stand</strong>
           </div>
-        </article>
+        </div>
+      </div>
+    </section>
 
-        <div class="side-column">
-          <article class="reminders glass">
-            <div class="reminders-head"><h3>Trip reminders</h3><span class="count">3</span></div>
-            <div class="reminder"><span class="ring"></span>Carry ride OTP 4821</div>
-            <div class="reminder"><span class="ring"></span>Departure at 06:30 AM</div>
-          </article>
-          <div class="quick-grid">
-            <button class="quick active"><span>FASTEST</span><b>4h 30m</b></button>
-            <button class="quick"><span>CHEAPEST</span><b>₹420</b></button>
-          </div>
+    <form class="search-card" id="tripSearchForm">
+      <div class="field">
+        <label for="fromInput">Leaving from</label>
+        <input id="fromInput" value="Solapur" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="toInput">Going to</label>
+        <input id="toInput" value="Pune" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="dateInput">Travel date</label>
+        <input id="dateInput" type="date" />
+      </div>
+      <button class="search-button" type="submit">Search trips</button>
+    </form>
+
+    <div class="content">
+      <section>
+        <div class="section-heading">
+          <div><h2>Plan your way</h2><p>Choose the journey that fits you best</p></div>
+          <button data-action="trips">View all</button>
+        </div>
+        <div class="stories">
+          <button class="story" data-title="Cheapest"><span class="story-icon">₹</span><strong>Cheapest</strong><small>From ₹420</small></button>
+          <button class="story" data-title="Fastest"><span class="story-icon">↗</span><strong>Fastest</strong><small>4h 30m</small></button>
+          <button class="story" data-title="Comfort"><span class="story-icon">◫</span><strong>Comfort</strong><small>AC sleeper</small></button>
+          <button class="story" data-title="Dhaba"><span class="story-icon">♨</span><strong>Food stops</strong><small>Near your route</small></button>
+          <button class="story" data-title="Safety"><span class="story-icon">◎</span><strong>Safety</strong><small>112 support</small></button>
         </div>
       </section>
 
-      <section class="stories" aria-label="Trip highlights">
-        <button class="story" data-title="Cheapest"><span class="story-icon">₹</span><span><strong>Cheapest</strong><small>₹420 locked</small></span></button>
-        <button class="story" data-title="Fastest"><span class="story-icon">↗</span><span><strong>Fastest</strong><small>4h 30m</small></span></button>
-        <button class="story" data-title="Comfort"><span class="story-icon">◫</span><span><strong>Comfort</strong><small>AC sleeper</small></span></button>
-        <button class="story" data-title="Dhaba"><span class="story-icon">♨</span><span><strong>Food stop</strong><small>Pre-order</small></span></button>
-        <button class="story" data-title="Safety"><span class="story-icon">◎</span><span><strong>Safety</strong><small>Teen mode</small></span></button>
+      <section>
+        <div class="section-heading">
+          <div><h2>Popular trips</h2><p>Solapur to Pune and nearby routes</p></div>
+          <button data-action="search">Change route</button>
+        </div>
+        <div class="trip-grid" id="tripGrid">
+          <article class="trip-card featured" data-name="Cheapest Solapur Pune">
+            <span class="badge">Best value</span>
+            <h3>Solapur <span>→</span> Pune</h3>
+            <p>06:30 AM · Via NH65 · 5h 40m</p>
+            <div class="legs"><span>Auto</span><span>•</span><span>Bus</span><span>•</span><span>Auto</span></div>
+            <strong class="fare">₹420</strong>
+          </article>
+          <article class="trip-card" data-name="Fastest Solapur Pune">
+            <span class="badge">Fastest</span>
+            <h3>Direct express</h3>
+            <p>07:15 AM · 4h 30m</p>
+            <strong class="fare">₹610</strong>
+          </article>
+          <article class="trip-card" data-name="Comfort Solapur Pune">
+            <span class="badge">Comfort</span>
+            <h3>AC sleeper</h3>
+            <p>08:00 AM · 4h 50m</p>
+            <strong class="fare">₹780</strong>
+          </article>
+        </div>
       </section>
-
-      <section class="feed" aria-label="Available trips">
-        <article class="trip-card featured" data-name="Cheapest Solapur Pune">
-          <span class="badge">Best value</span>
-          <h3>Solapur → Pune</h3>
-          <p>06:30 AM · Via NH65 · 5h 40m</p>
-          <div class="legs"><span>Auto 20m</span><span>•</span><span>Bus 4h 45m</span><span>•</span><span>Auto 35m</span></div>
-          <strong class="fare">₹420</strong>
-        </article>
-        <article class="trip-card" data-name="Fastest Solapur Pune">
-          <span class="badge">Fastest</span>
-          <h3>Direct express</h3>
-          <p>07:15 AM · 4h 30m</p>
-          <strong class="fare">₹610</strong>
-        </article>
-        <article class="trip-card" data-name="Comfort Solapur Pune">
-          <span class="badge">Comfort</span>
-          <h3>AC sleeper</h3>
-          <p>08:00 AM · 4h 50m</p>
-          <strong class="fare">₹780</strong>
-        </article>
-      </section>
-    </main>
-  </div>
+    </div>
+  </main>
 
   <nav class="bottom-nav">
     <button class="active" data-action="home">⌂<br>Home</button>
@@ -373,107 +509,122 @@
 
   <div class="sheet" id="sheet">
     <div class="sheet-panel">
-      <small class="eyebrow">All legs included</small>
-      <h2 id="sheetTitle">Cheapest journey</h2>
-      <p>Auto pickup · Bus seat · Final auto ride · Zero surge guarantee</p>
-      <div class="sheet-actions"><button class="book">Book trip</button><button class="close">Close</button></div>
+      <small>SAHIYATRA TRIP</small>
+      <h2 id="sheetTitle">Journey details</h2>
+      <p id="sheetText">Auto pickup · Bus seat · Final auto ride · Fixed fare</p>
+      <div class="sheet-actions">
+        <button class="book" id="sheetBook">Book trip</button>
+        <button class="close" id="closeSheet">Close</button>
+      </div>
     </div>
   </div>
 
   <script>
     const sheet = document.getElementById('sheet');
-    document.querySelectorAll('.trip-card').forEach(card => {
-      card.addEventListener('click', () => {
-        document.getElementById('sheetTitle').textContent = card.querySelector('h3').textContent;
-        sheet.querySelector('p').textContent = 'Auto pickup · Bus seat · Final auto ride · Zero surge guarantee';
-        bookButton.textContent = 'Book trip';
-        bookButton.disabled = false;
-        sheet.classList.add('open');
-      });
-    });
-    document.querySelector('.close').addEventListener('click', () => sheet.classList.remove('open'));
+    const sheetTitle = document.getElementById('sheetTitle');
+    const sheetText = document.getElementById('sheetText');
+    const sheetBook = document.getElementById('sheetBook');
+    const fromInput = document.getElementById('fromInput');
+    const toInput = document.getElementById('toInput');
+
+    function openSheet(title, text, buttonText, action) {
+      sheetTitle.textContent = title;
+      sheetText.textContent = text;
+      sheetBook.textContent = buttonText;
+      sheetBook.dataset.action = action || '';
+      sheetBook.disabled = false;
+      sheet.classList.add('open');
+    }
+
+    function openMaps(url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    function mapDirections() {
+      const url = new URL('https://www.google.com/maps/dir/');
+      url.searchParams.set('api', '1');
+      url.searchParams.set('origin', `${fromInput.value || 'Solapur'}, Maharashtra`);
+      url.searchParams.set('destination', `${toInput.value || 'Pune'}, Maharashtra`);
+      url.searchParams.set('travelmode', 'driving');
+      openMaps(url.toString());
+    }
+
+    function mapFood() {
+      const url = new URL('https://www.google.com/maps/search/');
+      url.searchParams.set('api', '1');
+      url.searchParams.set('query', `Restaurants and dhabas near the route from ${fromInput.value || 'Solapur'} to ${toInput.value || 'Pune'} Maharashtra`);
+      openMaps(url.toString());
+    }
+
+    document.getElementById('dateInput').valueAsDate = new Date();
+    document.getElementById('closeSheet').addEventListener('click', () => sheet.classList.remove('open'));
     sheet.addEventListener('click', event => { if (event.target === sheet) sheet.classList.remove('open'); });
-    const routeSearch = document.getElementById('routeSearch');
-    routeSearch.addEventListener('input', event => {
-      const query = event.target.value.trim().toLowerCase();
-      document.querySelectorAll('.trip-card').forEach(card => {
-        card.style.display = !query || card.dataset.name.toLowerCase().includes(query) ? '' : 'none';
+
+    document.querySelectorAll('.trip-card').forEach(card => {
+      card.addEventListener('click', () => openSheet(
+        card.querySelector('h3').textContent,
+        'Auto pickup · Bus seat · Connecting auto · Fixed fare · No surge pricing',
+        'Book trip',
+        'book'
+      ));
+    });
+
+    document.querySelectorAll('.story').forEach(button => {
+      button.addEventListener('click', () => {
+        if (button.dataset.title === 'Dhaba') {
+          openSheet('Food stops', 'Discover restaurants and dhabas near your route in Google Maps.', 'Find food on Maps', 'food');
+        } else if (button.dataset.title === 'Safety') {
+          openSheet('Safety center', 'Emergency support, boarding PIN and live assistance.', 'Open SOS 112', 'safety');
+        } else {
+          openSheet(button.dataset.title + ' trip', 'A route selected for your Solapur to Pune journey.', 'View route in Maps', 'directions');
+        }
       });
     });
-    const bookButton = document.querySelector('.sheet-actions .book');
-    bookButton.addEventListener('click', () => {
-      bookButton.textContent = 'Booking confirmed ✓';
-      bookButton.disabled = true;
+
+    sheetBook.addEventListener('click', () => {
+      if (sheetBook.dataset.action === 'directions') mapDirections();
+      else if (sheetBook.dataset.action === 'food') mapFood();
+      else if (sheetBook.dataset.action === 'safety') alert('Emergency assistance: call Maharashtra Police at 112');
+      else {
+        sheetBook.textContent = 'Booking confirmed ✓';
+        sheetBook.disabled = true;
+      }
     });
+
+    document.getElementById('tripSearchForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const query = `${fromInput.value} ${toInput.value}`.toLowerCase();
+      document.querySelectorAll('.trip-card').forEach(card => {
+        card.style.display = card.dataset.name.toLowerCase().includes(toInput.value.toLowerCase()) || query.includes('solapur pune') ? '' : 'none';
+      });
+      document.querySelector('.trip-grid').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
     document.querySelectorAll('[data-action]').forEach(button => {
       button.addEventListener('click', () => {
-        document.querySelectorAll('[data-action]').forEach(item => item.classList.remove('active'));
-        button.classList.add('active');
         const action = button.dataset.action;
-        if (action === 'home') {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else if (action === 'search') {
-          routeSearch.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          routeSearch.focus();
-        } else if (action === 'trips') {
-          document.getElementById('sheetTitle').textContent = 'My trips';
-          sheet.querySelector('p').textContent = 'Solapur → Pune · Ticket SY-4821 · Departure 06:30 AM';
-          bookButton.textContent = 'Open active trip';
-          bookButton.disabled = false;
-          sheet.classList.add('open');
-        } else if (action === 'food') {
-          document.getElementById('sheetTitle').textContent = 'Dhaba pre-order';
-          sheet.querySelector('p').textContent = 'Maharashtrian thali ₹90 · Poha ₹30 · Masala chai ₹10';
-          bookButton.textContent = 'Pre-order food';
-          bookButton.disabled = false;
-          sheet.classList.add('open');
-        } else if (action === 'safety') {
-          document.getElementById('sheetTitle').textContent = 'Safety center';
-          sheet.querySelector('p').textContent = 'Teen mode · Boarding PIN 7302 · Emergency contacts · Police 112';
-          bookButton.textContent = 'Open SOS center';
-          bookButton.disabled = false;
-          sheet.classList.add('open');
+        document.querySelectorAll('[data-action]').forEach(item => {
+          if (item.classList.contains('active') && item.closest('.desktop-nav, .bottom-nav')) item.classList.remove('active');
+        });
+        if (button.closest('.desktop-nav, .bottom-nav')) button.classList.add('active');
+        if (action === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (action === 'search') {
+          document.getElementById('tripSearchForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          fromInput.focus();
         }
+        if (action === 'trips') openSheet('My trips', 'Solapur → Pune · SY-4821 · Departure 06:30 AM', 'View route in Maps', 'directions');
+        if (action === 'food') openSheet('Food stops', 'Find restaurants and dhabas along your route in Google Maps.', 'Find food on Maps', 'food');
+        if (action === 'safety') openSheet('Safety center', 'Emergency support, boarding PIN and 112 police assistance.', 'Open SOS 112', 'safety');
       });
     });
-    document.querySelectorAll('.quick, .story, .nav button, .bottom-nav button').forEach(button => {
-      button.addEventListener('click', () => {
-        if (button.classList.contains('quick')) {
-          document.querySelectorAll('.quick').forEach(item => item.classList.remove('active'));
-          button.classList.add('active');
-        }
-        if (button.classList.contains('story')) {
-          document.getElementById('sheetTitle').textContent = button.dataset.title;
-          sheet.querySelector('p').textContent =
-            button.dataset.title === 'Safety'
-              ? 'Teen ride verification, boarding PIN and emergency contacts.'
-              : button.dataset.title + ' highlights for your Solapur to Pune journey.';
-          bookButton.textContent = button.dataset.title === 'Dhaba' ? 'Pre-order food' : 'Explore option';
-          bookButton.disabled = false;
-          sheet.classList.add('open');
-        }
-        if (button.parentElement.classList.contains('nav')) {
-          button.parentElement.querySelectorAll('button').forEach(item => item.classList.remove('active'));
-          button.classList.add('active');
-        }
-        if (button.parentElement.classList.contains('bottom-nav')) {
-          button.parentElement.querySelectorAll('button').forEach(item => item.classList.remove('active'));
-          button.classList.add('active');
-        }
-      });
-    });
+
     document.getElementById('languageButton').addEventListener('click', event => {
       event.currentTarget.textContent = event.currentTarget.textContent === 'MR' ? 'EN' : 'MR';
     });
-    const themeButton = document.getElementById('themeButton');
-    themeButton.setAttribute('aria-label', 'Switch to light glass mode');
-    themeButton.addEventListener('click', event => {
-      const isLight = document.body.classList.toggle('light-glass');
-      event.currentTarget.textContent = isLight ? '☀' : '◐';
-      event.currentTarget.setAttribute('title', isLight ? 'Switch to dark glass mode' : 'Switch to light glass mode');
-      event.currentTarget.setAttribute('aria-label', event.currentTarget.title);
+    document.getElementById('themeButton').addEventListener('click', () => {
+      document.body.classList.toggle('dark');
     });
-    document.getElementById('sosButton').addEventListener('click', () => alert('Emergency assistance: calling Maharashtra Police 112'));
+    document.getElementById('sosButton').addEventListener('click', () => alert('Emergency assistance: call Maharashtra Police at 112'));
   </script>
 </body>
 </html>
