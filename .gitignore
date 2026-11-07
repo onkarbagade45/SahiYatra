@@ -4,3 +4,6 @@ dist/
 *.log
 setup_log.txt
 bat_output.txt
+
+# Local Netlify folder
+.netlify
