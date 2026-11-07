@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SahiYatra — One App for the Whole Trip (Auto + Bus + Train)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '"Noto Sans Devanagari"', 'sans-serif'],
+            mr: ['"Noto Sans Devanagari"', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              900: '#0F172A',
+              800: '#1E293B',
+              700: '#334155'
+            },
+            transit: {
+              blue: '#2563EB',
+              cyan: '#0284C7',
+              saffron: '#EA580C',
+              amber: '#F59E0B',
+              emerald: '#10B981',
+              ruby: '#DC2626'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #0b1120;
+      color: #f8fafc;
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
+    }
+    .transit-glass {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    @keyframes laser-sweep {
+      0% { top: 5%; opacity: 0.9; }
+      50% { opacity: 1; filter: drop-shadow(0 0 8px #3b82f6); }
+      100% { top: 90%; opacity: 0.9; }
+    }
+    .animate-laser {
+      animation: laser-sweep 2.4s ease-in-out infinite alternate;
+    }
+
+    @keyframes steam-rise {
+      0% { transform: translateY(0) scaleX(1); opacity: 0; }
+      40% { opacity: 0.7; }
+      100% { transform: translateY(-14px) scaleX(1.4); opacity: 0; }
+    }
+    .animate-steam {
+      animation: steam-rise 2s ease-out infinite;
+    }
+
+    @keyframes pulse-radar {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.6); }
+      70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(37, 99, 235, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+    }
+    .radar-pulse {
+      animation: pulse-radar 2s infinite;
+    }
+
+    @keyframes dash-flow {
+      to { stroke-dashoffset: -32; }
+    }
+    .animate-flow-line {
+      stroke-dasharray: 8 6;
+      animation: dash-flow 1.2s linear infinite;
+    }
+
+    @keyframes float-gentle {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+    .animate-float {
+      animation: float-gentle 3.5s ease-in-out infinite;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+  </style>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="min-h-screen bg-[#090D16] text-slate-100 antialiased selection:bg-blue-600 selection:text-white">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo, useRef } = React;
+
+    const Icon = ({ name, size = 18, className = "" }) => {
+      const icons = {
+        bus: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg>,
+        car: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>,
+        train: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="16" height="16" x="4" y="3" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></svg>,
+        shield: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>,
+        mapPin: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>,
+        clock: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+        alert: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>,
+        check: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 6 9 17l-5-5"/></svg>,
+        phone: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+        volume: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>,
+        qr: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>,
+        share: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>,
+        utensils: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M14 2v10"/><path d="M14 12v8a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-8"/><path d="M4 2v20"/><path d="M7 2v5a2 2 0 0 1-2 2H4"/></svg>,
+        chart: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>,
+        users: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+        zap: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+        arrowRight: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
+        play: <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className}><polygon points="5 3 19 12 5 21 5 3"/></svg>,
+        pause: <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className}><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>,
+        refresh: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
+        lock: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      };
+      return icons[name] || null;
+    };
+
+    const QUICK_PILLS = [
+      { label: 'Solapur ST Stand', origin: 'Ashok Chowk, Solapur', destination: 'Swargate S.T. Stand, Pune' },
+      { label: 'Pune Station', origin: 'Pune Railway Station', destination: 'Solapur Old S.T. Stand' },
+      { label: 'Pandharpur Temple', origin: 'Swargate S.T. Stand, Pune', destination: 'Shri Vitthal-Rukmini Mandir, Pandharpur' },
+      { label: 'Hinjawadi IT Park', origin: 'Ashok Chowk, Solapur', destination: 'Hinjawadi IT Park Phase 1, Pune' },
+      { label: 'Ruby Hall Hospital', origin: 'Solapur Old S.T. Stand', destination: 'Ruby Hall Clinic (Hospital), Pune' }
+    ];
+
+    const PLANS_SEED = [
+      {
+        planId: 'plan-cheapest',
+        name: 'Cheapest',
+        nameMr: 'किफायतशीर पर्याय',
+        tagline: 'Auto + MSRTC Ordinary (Lal Pari) + Auto',
+        totalDuration: '5h 40m',
+        totalFare: 420,
+        badge: 'Best Value',
+        badgeColor: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+        summaryRoute: 'Doorstep Auto (₹50) → Ordinary ST Bus (₹310) → Destination Auto (₹60)',
+        legs: [
+          { mode: 'Auto Rickshaw', from: 'Ashok Chowk, Solapur', to: 'Solapur Old ST Stand', fare: 50, duration: '20m', otp: '4821', note: 'Locked fare' },
+          { mode: 'MSRTC Ordinary Bus', from: 'Solapur Old ST Stand', to: 'Swargate ST Stand', fare: 310, duration: '5h 00m', platform: 'Platform #4', buffer: '30m' },
+          { mode: 'Connecting Auto', from: 'Swargate ST Stand', to: 'Hinjawadi IT Park', fare: 60, duration: '20m', otp: '6741', note: 'Pre-reserved' }
+        ]
+      },
+      {
+        planId: 'plan-fastest',
+        name: 'Fastest',
+        nameMr: 'जलद कनेक्टेड पर्याय',
+        tagline: 'Dedicated Auto + Shivshahi AC Bus + Dedicated Auto',
+        totalDuration: '4h 30m',
+        totalFare: 610,
+        badge: 'Recommended',
+        badgeColor: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+        summaryRoute: 'Priority Auto (₹60) → Shivshahi AC Bus (₹470) → Bay 2 Auto (₹80)',
+        legs: [
+          { mode: 'Dedicated Auto', from: 'Ashok Chowk, Solapur', to: 'Solapur Old ST Stand', fare: 60, duration: '15m', otp: '4821', driver: 'Ramesh Jadhav (4.7★)' },
+          { mode: 'MSRTC Shivshahi AC', from: 'Solapur Old ST Stand', to: 'Swargate ST Stand', fare: 470, duration: '3h 50m', platform: 'Platform #4', seat: '14A, 14B', buffer: '25m' },
+          { mode: 'Pre-Assigned Auto', from: 'Swargate ST Stand Bay 2', to: 'Hinjawadi IT Park Phase 1', fare: 80, duration: '25m', otp: '9152', note: 'Held on arrival' }
+        ]
+      },
+      {
+        planId: 'plan-comfort',
+        name: 'Comfort',
+        nameMr: 'आरामदायी वातानुकूलित पर्याय',
+        tagline: 'EV Auto + Shivneri Multi-Axle AC Sleeper + VIP Auto',
+        totalDuration: '4h 50m',
+        totalFare: 780,
+        badge: 'Max Comfort',
+        badgeColor: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+        summaryRoute: 'EV Auto (₹70) → Shivneri AC Sleeper (₹620) → VIP Auto (₹90)',
+        legs: [
+          { mode: 'Green EV Auto', from: 'Ashok Chowk, Solapur', to: 'Solapur Stand VIP Bay', fare: 70, duration: '15m', otp: '5519', driver: 'Vijay (4.9★)' },
+          { mode: 'Shivneri AC Sleeper', from: 'Solapur Old ST Stand', to: 'Swargate ST Stand', fare: 620, duration: '4h 05m', platform: 'Platform #1 Lounge', berth: 'Upper Sleeper U-3' },
+          { mode: 'Guaranteed Auto', from: 'Swargate ST Stand Bay 1', to: 'Hinjawadi Doorstep', fare: 90, duration: '30m', otp: '3341', note: 'Doorstep drop' }
+        ]
+      }
+    ];
+
+    const DHABA_ITEMS = [
+      { id: 'thali', name: 'Special Maharashtrian Veg Thali', nameMr: 'विशेष महाराष्ट्रीयन शाकाहारी थाळी', price: 90, prep: 'Ready in 3 min', tag: 'Bestseller', hasSteam: true, desc: 'Jowar Bhakri, Pithla, Shengdana Usal, Dal, Jeera Rice, Thecha & Gulab Jamun.' },
+      { id: 'poha', name: 'Kanda Poha with Sev & Nimbu', nameMr: 'कांदा पोहे (शेव आणि लिंबू)', price: 30, prep: 'Hot in 2 min', tag: 'Fresh', hasSteam: true, desc: 'Freshly steamed poha with roasted peanuts and lemon wedge.' },
+      { id: 'chai', name: 'Special Masala Chai (Kulhad)', nameMr: 'मसाला चहा (कुल्हड)', price: 10, prep: 'Boiling hot', tag: 'Classic', hasSteam: true, desc: 'Earthen pot cardamom-ginger transit special tea.' },
+      { id: 'water', name: 'Mineral Water (Chilled 1L)', nameMr: 'थंड मिनरल वॉटर (१ लिटर)', price: 20, prep: 'Instant', tag: 'Sealed', hasSteam: false, desc: '100% Sealed ISI packaged pure drinking water.' },
+      { id: 'misal', name: 'Puneri Misal Pav (2 Pav + Farsan)', nameMr: 'झणझणीत मिसळ पाव', price: 50, prep: 'Hot in 3 min', tag: 'Spicy', hasSteam: true, desc: 'Sprouted moth beans fiery tarri rassa with crisp Kolhapuri farsan.' }
+    ];
+
+    function InteractiveRouteSimulator() {
+      const [progress, setProgress] = useState(48);
+      const [isPlaying, setIsPlaying] = useState(true);
+      const [speedMult, setSpeedMult] = useState(1);
+
+      useEffect(() => {
+        if (!isPlaying) return;
+        const interval = setInterval(() => {
+          setProgress(prev => {
+            if (prev >= 100) return 0;
+            return prev + (0.35 * speedMult);
+          });
+        }, 50);
+        return () => clearInterval(interval);
+      }, [isPlaying, speedMult]);
+
+      const telemetry = useMemo(() => {
+        let mode = 'Auto Rickshaw';
+        let vehicle = 'MH 13 AB 1234';
+        let driver = 'Ramesh Jadhav';
+        let speed = 35;
+        let milestone = 'Ashok Chowk ➔ Solapur Stand';
+        let legIndex = 0;
+
+        if (progress < 15) {
+          mode = 'Auto Rickshaw (First-Mile)';
+          vehicle = 'MH 13 AB 1234 (Auto)';
+          driver = 'Ramesh Jadhav (4.7★)';
+          speed = Math.round(28 + Math.sin(progress) * 8);
+          milestone = 'Doorstep Auto to Solapur ST Stand';
+          legIndex = 0;
+        } else if (progress < 85) {
+          mode = 'MSRTC Shivshahi AC Bus';
+          vehicle = 'MH 13 CU 4491 (Bus)';
+          driver = 'MSRTC Pilot S. More';
+          legIndex = 1;
+
+          if (progress >= 42 && progress <= 55) {
+            speed = 0;
+            milestone = 'Highway Halt: Hotel Jagdamba Dhaba (Indapur)';
+          } else if (progress > 70 && progress < 82) {
+            speed = 22;
+            milestone = 'Hadapsar Bypass Congestion (+15m Buffer Active)';
+          } else {
+            speed = Math.round(72 + Math.sin(progress * 2) * 6);
+            milestone = 'Cruising NH 65 Solapur-Pune Corridor';
+          }
+        } else {
+          mode = 'Connecting Auto (Last-Mile)';
+          vehicle = 'MH 12 PQ 7890 (Auto)';
+          driver = 'Santosh Shinde (4.8★)';
+          speed = Math.round(32 + Math.cos(progress) * 7);
+          milestone = 'Swargate Bay #2 ➔ Hinjawadi IT Park';
+          legIndex = 2;
+        }
+
+        const t = progress / 100;
+        const x = 40 + t * 710;
+        const y = 90 - Math.sin(t * Math.PI * 2) * 35;
+
+        return { mode, vehicle, driver, speed, milestone, legIndex, x, y };
+      }, [progress]);
+
+      return (
+        <div className="transit-glass rounded-2xl p-5 border-2 border-blue-500/40 shadow-2xl relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950/40">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-700/70">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 radar-pulse">
+                <Icon name={telemetry.legIndex === 1 ? "bus" : "car"} size={20} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-extrabold text-white tracking-wide">
+                    Live Highway Corridor Simulator
+                  </h3>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
+                    Interactive 3-Leg Flow
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  Currently at: <span className="text-amber-400 font-semibold">{telemetry.milestone}</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 bg-slate-900/90 p-1.5 rounded-xl border border-slate-700">
+              <button
+                onClick={() => setIsPlaying(!isPlaying)}
+                className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition ${isPlaying ? 'bg-amber-600 text-white' : 'bg-blue-600 text-white'}`}
+                title={isPlaying ? "Pause Simulator" : "Play Simulator"}
+              >
+                <Icon name={isPlaying ? "pause" : "play"} size={13} />
+                <span>{isPlaying ? 'Pause' : 'Play'}</span>
+              </button>
+
+              {[1, 2, 5].map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setSpeedMult(s)}
+                  className={`text-[10px] px-2 py-1 rounded-md font-bold transition ${speedMult === s ? 'bg-slate-700 text-blue-300' : 'text-slate-400 hover:text-white'}`}
+                >
+                  {s}x
+                </button>
+              ))}
+
+              <button
+                onClick={() => setProgress(0)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white transition"
+                title="Rewind to start"
+              >
+                <Icon name="refresh" size={13} />
+              </button>
+            </div>
+          </div>
+
+          <div className="relative w-full h-36 bg-slate-950/70 rounded-xl border border-slate-800 p-2 overflow-hidden">
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:16px_16px]"></div>
+
+            <svg viewBox="0 0 800 160" className="w-full h-full">
+              <defs>
+                <linearGradient id="corridorGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#EA580C" />
+                  <stop offset="18%" stopColor="#3B82F6" />
+                  <stop offset="50%" stopColor="#F59E0B" />
+                  <stop offset="85%" stopColor="#10B981" />
+                  <stop offset="100%" stopColor="#3B82F6" />
+                </linearGradient>
+              </defs>
+
+              <path
+                d="M 40,90 Q 200,20 400,90 T 760,70"
+                fill="none"
+                stroke="#1E293B"
+                strokeWidth="14"
+                strokeLinecap="round"
+              />
+
+              <path
+                d="M 40,90 Q 200,20 400,90 T 760,70"
+                fill="none"
+                stroke="url(#corridorGlow)"
+                strokeWidth="6"
+                strokeLinecap="round"
+                className="animate-flow-line"
+              />
+
+              <circle cx="40" cy="90" r="7" fill="#EA580C" />
+              <text x="35" y="125" fill="#CBD5E1" fontSize="10" fontWeight="bold">Solapur (Ashok Chowk)</text>
+
+              <circle cx="160" cy="56" r="6" fill="#3B82F6" />
+              <text x="125" y="40" fill="#93C5FD" fontSize="9">ST Stand (Plat #4)</text>
+
+              <circle cx="400" cy="90" r="8" fill="#F59E0B" className="animate-ping" style={{ transformOrigin: '400px 90px' }} />
+              <circle cx="400" cy="90" r="7" fill="#F59E0B" />
+              <text x="340" y="125" fill="#FDE68A" fontSize="10" fontWeight="bold">Dhaba Halt (2:30 PM)</text>
+
+              <circle cx="640" cy="68" r="6" fill="#10B981" />
+              <text x="590" y="45" fill="#86EFAC" fontSize="9">Swargate (Bay #2)</text>
+
+              <circle cx="760" cy="70" r="7" fill="#3B82F6" />
+              <text x="690" y="105" fill="#CBD5E1" fontSize="10" fontWeight="bold">Hinjawadi IT Park</text>
+
+              <g transform={`translate(${telemetry.x}, ${telemetry.y})`}>
+                <circle r="16" fill="rgba(37, 99, 235, 0.3)" className="animate-ping" />
+                <circle r="11" fill="#2563EB" stroke="#ffffff" strokeWidth="2.5" />
+                <circle r="4" fill="#FDE047" />
+              </g>
+            </svg>
+
+            <div
+              className="absolute pointer-events-none transition-all duration-75 text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-slate-900/95 border border-blue-400 text-white shadow-xl flex items-center gap-1 z-10"
+              style={{
+                left: `${Math.min(88, Math.max(5, progress))}%`,
+                top: telemetry.y > 80 ? '12px' : '75px',
+                transform: 'translateX(-50%)'
+              }}
+            >
+              <span>{telemetry.legIndex === 1 ? '🚍' : '🛺'}</span>
+              <span>{telemetry.vehicle}</span>
+              <span className="text-amber-400">({telemetry.speed} km/h)</span>
+            </div>
+          </div>
+
+          <div className="mt-4 space-y-2">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-slate-400">Drag to scrub journey timeline:</span>
+              <span className="text-blue-400 font-mono font-bold">{Math.round(progress)}% Completed</span>
+            </div>
+
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={progress}
+              onChange={(e) => {
+                setProgress(Number(e.target.value));
+                setIsPlaying(false);
+              }}
+              className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4 text-xs">
+            <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+              <span className="text-[10px] text-slate-400 block font-semibold">Active Vehicle Mode</span>
+              <span className="font-extrabold text-white text-xs">{telemetry.mode}</span>
+            </div>
+
+            <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+              <span className="text-[10px] text-slate-400 block font-semibold">Current Speed Dial</span>
+              <span className={`font-black text-sm ${telemetry.speed === 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                {telemetry.speed} km/h {telemetry.speed === 0 && '(Dhaba Halt)'}
+              </span>
+            </div>
+
+            <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+              <span className="text-[10px] text-slate-400 block font-semibold">Assigned Driver</span>
+              <span className="font-extrabold text-blue-300 text-xs truncate block">{telemetry.driver}</span>
+            </div>
+
+            <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+              <span className="text-[10px] text-slate-400 block font-semibold">Transfer Guarantee</span>
+              <span className="font-extrabold text-emerald-400 text-xs">Bay #2 Held Locked</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [activeTab, setActiveTab] = useState('planner');
+      const [lang, setLang] = useState('en');
+      const [isMobileFrame, setIsMobileFrame] = useState(false);
+
+      const [origin, setOrigin] = useState('Ashok Chowk, Solapur');
+      const [destination, setDestination] = useState('Hinjawadi IT Park Phase 1, Pune');
+      const [travelDate, setTravelDate] = useState('2026-11-07');
+      const [passengers, setPassengers] = useState(1);
+      const [selectedPlan, setSelectedPlan] = useState(PLANS_SEED[1]);
+      const [searchLoading, setSearchLoading] = useState(false);
+
+      const [priceLocked, setPriceLocked] = useState(true);
+      const [priceLockBurst, setPriceLockBurst] = useState(false);
+
+      const [passengerName, setPassengerName] = useState('Aniket Bagade');
+      const [passengerPhone, setPassengerPhone] = useState('+91 98220 54123');
+      const [teenSafeChecked, setTeenSafeChecked] = useState(false);
+      const [bookingConfirmed, setBookingConfirmed] = useState(false);
+      const [confirmedBookingData, setConfirmedBookingData] = useState(null);
+
+      const [delayMins, setDelayMins] = useState(15);
+      const [showSOSModal, setShowSOSModal] = useState(false);
+      const [sosCountDown, setSosCountDown] = useState(5);
+      const [sosDispatched, setSosDispatched] = useState(false);
+      const [speechPlaying, setSpeechPlaying] = useState(false);
+      const [gpsCoord, setGpsCoord] = useState({ lat: 18.1587, lng: 75.0319, speed: 72, near: 'Indapur Bypass, NH 65' });
+      const [copiedLink, setCopiedLink] = useState(false);
+
+      const [dhabaCart, setDhabaCart] = useState({});
+      const [dhabaOrderPlaced, setDhabaOrderPlaced] = useState(false);
+      const [dhabaToken, setDhabaToken] = useState('DH-142');
+
+      const [festivalList, setFestivalList] = useState([
+        { day: 'Mon (Dhanteras)', unserved: 1420, waitlist: 890, standby: 2, percent: 85 },
+        { day: 'Tue (Naraka Ch.)', unserved: 2350, waitlist: 1540, standby: 4, percent: 94 },
+        { day: 'Wed (Lakshmi Pujan)', unserved: 3100, waitlist: 2120, standby: 6, percent: 100 },
+        { day: 'Thu (Balipratipada)', unserved: 2780, waitlist: 1850, standby: 5, percent: 96 },
+        { day: 'Fri (Bhai Dooj)', unserved: 3450, waitlist: 2410, standby: 8, percent: 100 }
+      ]);
+      const [busesDeployedMsg, setBusesDeployedMsg] = useState('');
+
+      const [driverRides, setDriverRides] = useState([
+        { id: 'RIDE-101', name: 'Amit Deshmukh (Family 3)', from: 'Ashok Chowk, Solapur', to: 'Solapur Old ST Stand (Bay 4)', fare: 60, dist: '3.2 km', otp: '4821', teen: false },
+        { id: 'RIDE-102', name: 'Pooja Kulkarni (Student)', from: 'Saat Rasta, Solapur', to: 'Solapur Railway Station', fare: 75, dist: '4.1 km', otp: '7302', teen: true, parent: 'Santosh (+91 98220 54123)' },
+        { id: 'RIDE-103', name: 'Nitin Mane (Executive)', from: 'Swargate Bay 2, Pune', to: 'Hinjawadi IT Park Phase 1', fare: 80, dist: '18.5 km', otp: '9152', teen: false }
+      ]);
+      const [driverAcceptToast, setDriverAcceptToast] = useState('');
+
+      const speakMarathiDestination = (text) => {
+        if (!('speechSynthesis' in window)) {
+          alert('Text-to-speech not supported on this browser.');
+          return;
+        }
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'mr-IN';
+        utterance.rate = 0.9;
+        utterance.onstart = () => setSpeechPlaying(true);
+        utterance.onend = () => setSpeechPlaying(false);
+        utterance.onerror = () => setSpeechPlaying(false);
+        window.speechSynthesis.speak(utterance);
+      };
+
+      useEffect(() => {
+        let timer;
+        if (showSOSModal && !sosDispatched && sosCountDown > 0) {
+          timer = setTimeout(() => setSosCountDown(prev => prev - 1), 1000);
+        } else if (showSOSModal && sosCountDown === 0 && !sosDispatched) {
+          setSosDispatched(true);
+        }
+        return () => clearTimeout(timer);
+      }, [showSOSModal, sosCountDown, sosDispatched]);
+
+      const cartTotal = useMemo(() => {
+        return Object.entries(dhabaCart).reduce((sum, [id, qty]) => {
+          const item = DHABA_ITEMS.find(i => i.id === id);
+          return sum + (item ? item.price * qty : 0);
+        }, 0);
+      }, [dhabaCart]);
+
+      const cartItemCount = useMemo(() => {
+        return Object.values(dhabaCart).reduce((a, b) => a + b, 0);
+      }, [dhabaCart]);
+
+      const handleCopyTrackingLink = () => {
+        const link = 'https://sahiyatra.app/track/TRIP-MH-84920-LIVE';
+        navigator.clipboard?.writeText(link);
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 2500);
+      };
+
+      const handleDeployStandby = () => {
+        setFestivalList(prev => prev.map(item => ({
+          ...item,
+          standby: item.standby + 2,
+          unserved: Math.max(150, item.unserved - 600),
+          percent: Math.max(70, item.percent - 12)
+        })));
+        setBusesDeployedMsg('4 Extra MSRTC Standby Buses dispatched to Swargate & Solapur Old Stand! Waitlists reduced by 35%.');
+        setTimeout(() => setBusesDeployedMsg(''), 5000);
+      };
+
+      const handleBookAllLegs = () => {
+        const newRef = 'SY-' + Math.floor(100000 + Math.random() * 900000);
+        const data = {
+          bookingRef: newRef,
+          plan: selectedPlan,
+          passengerName,
+          passengerPhone,
+          passengers,
+          totalCost: selectedPlan.totalFare * passengers,
+          teenSafe: teenSafeChecked,
+          travelDate,
+          origin,
+          destination
+        };
+        setConfirmedBookingData(data);
+        setBookingConfirmed(true);
+      };
+
+      const triggerPriceLockBurst = () => {
+        setPriceLockBurst(true);
+        setPriceLocked(true);
+        setTimeout(() => setPriceLockBurst(false), 1500);
+      };
+
+      return (
+        <div className={`mx-auto ${isMobileFrame ? 'max-w-md my-6 rounded-3xl border-4 border-slate-700 shadow-2xl overflow-hidden' : 'max-w-6xl p-3 md:p-6'} transition-all`}>
+          
+          <header className="transit-glass rounded-2xl p-4 mb-5 border border-slate-700/60 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
+              <div className="flex items-center gap-2.5">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-amber-600 flex items-center justify-center shadow-lg shadow-blue-500/25 text-white font-black text-xl animate-float">
+                  SY
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl font-extrabold tracking-tight text-white">SahiYatra</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/30">
+                      {lang === 'mr' ? 'एकच ॲप संपूर्ण प्रवासासाठी' : 'One App for the Whole Trip'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400">Auto + Bus + Train Unified Transit Grid • Maharashtra Corridors</p>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setIsMobileFrame(!isMobileFrame)}
+                className="hidden md:flex text-xs px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 items-center gap-1.5 transition"
+                title="Toggle between phone frame and full dashboard"
+              >
+                <span>{isMobileFrame ? '📱 Mobile Frame' : '💻 Desktop View'}</span>
+              </button>
+            </div>
+
+            <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+              <button
+                onClick={triggerPriceLockBurst}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition cursor-pointer ${
+                  priceLockBurst
+                    ? 'bg-emerald-500 text-white border-emerald-400 scale-105 shadow-lg shadow-emerald-500/40'
+                    : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25'
+                }`}
+                title="Click to interactively verify Zero Surge Lock"
+              >
+                <Icon name="shield" size={14} className={priceLockBurst ? "animate-spin" : "text-emerald-400"} />
+                <span>{priceLockBurst ? '✨ Price Locked 100%!' : 'Zero Surge Guaranteed'}</span>
+              </button>
+
+              <div className="flex rounded-lg p-0.5 bg-slate-800 border border-slate-700 text-xs">
+                <button
+                  onClick={() => setLang('en')}
+                  className={`px-2.5 py-1 rounded-md font-semibold transition ${lang === 'en' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                >
+                  English
+                </button>
+                <button
+                  onClick={() => setLang('mr')}
+                  className={`px-2.5 py-1 rounded-md font-semibold transition ${lang === 'mr' ? 'bg-amber-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                >
+                  मराठी
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <nav className="flex overflow-x-auto gap-2 pb-2 mb-6 scrollbar-none text-xs md:text-sm font-semibold">
+            {[
+              { id: 'planner', label: lang === 'mr' ? 'मार्ग व योजना' : '1. Route Planner', icon: 'mapPin' },
+              { id: 'checkout', label: lang === 'mr' ? 'तिकीट व बिलिंग' : '2. Summary & Checkout', icon: 'qr' },
+              { id: 'transit', label: lang === 'mr' ? 'थेट प्रवास डॅशबोर्ड' : '3. Active In-Transit', icon: 'bus', highlight: true },
+              { id: 'dhaba', label: lang === 'mr' ? 'हायवे ढाबा जेवण' : '4. Highway Dhaba', icon: 'utensils', badge: cartItemCount > 0 ? cartItemCount : null },
+              { id: 'festival', label: lang === 'mr' ? 'सण गर्दी व सुरक्षा' : '5. Festival & Safety', icon: 'chart' },
+              { id: 'driver', label: lang === 'mr' ? 'रिक्षा चालक साथीदार' : '6. Driver Module', icon: 'car' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl whitespace-nowrap transition border ${
+                  activeTab === tab.id
+                    ? 'bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-500/25'
+                    : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700/70 hover:border-slate-600'
+                }`}
+              >
+                <Icon name={tab.icon} size={15} />
+                <span>{tab.label}</span>
+                {tab.highlight && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                )}
+                {tab.badge && (
+                  <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 font-bold text-[10px]">
+                    {tab.badge}
+                  </span>
+                )}
+              </button>
+            ))}
+          </nav>
+
+          {activeTab === 'planner' && (
+            <div className="space-y-6">
+              <InteractiveRouteSimulator />
+
+              <div className="transit-glass rounded-2xl p-5 border border-slate-700 shadow-xl">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-base md:text-lg font-bold text-white flex items-center gap-2">
+                    <Icon name="mapPin" className="text-blue-400" />
+                    {lang === 'mr' ? 'प्रवास शोधा व अखंड जोडणी करा' : 'Multi-Modal Trip Search & Assembly'}
+                  </h2>
+                  <span className="text-xs text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-full border border-blue-500/20 font-medium">
+                    Auto ➔ Bus/Train ➔ Auto
+                  </span>
+                </div>
+
+                <div className="mb-4">
+                  <p className="text-xs text-slate-400 mb-2 font-medium">
+                    {lang === 'mr' ? 'वारंवार वापरले जाणारे स्थानके:' : 'Quick Route Hubs (Click to load corridor):'}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {QUICK_PILLS.map((pill, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          setOrigin(pill.origin);
+                          setDestination(pill.destination);
+                        }}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-blue-900/40 text-slate-300 hover:text-blue-300 border border-slate-700 transition flex items-center gap-1.5 hover:scale-105"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                        {pill.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+                  <div className="relative">
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1">
+                      {lang === 'mr' ? 'सुरुवातीचे स्थान (घर / चौक)' : 'Origin (Doorstep / Stand)'}
+                    </label>
+                    <input
+                      type="text"
+                      value={origin}
+                      onChange={(e) => setOrigin(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition"
+                      placeholder="e.g., Ashok Chowk, Solapur"
+                    />
+                  </div>
+
+                  <div className="relative">
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1">
+                      {lang === 'mr' ? 'गंतव्य स्थान (शेवटचे ठिकाण)' : 'Destination (Final Drop)'}
+                    </label>
+                    <input
+                      type="text"
+                      value={destination}
+                      onChange={(e) => setDestination(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition"
+                      placeholder="e.g., Hinjawadi IT Park Phase 1, Pune"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1">
+                      {lang === 'mr' ? 'प्रवासाची तारीख' : 'Travel Date'}
+                    </label>
+                    <input
+                      type="date"
+                      value={travelDate}
+                      onChange={(e) => setTravelDate(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1">
+                      {lang === 'mr' ? 'प्रवासी संख्या' : 'Passengers'}
+                    </label>
+                    <select
+                      value={passengers}
+                      onChange={(e) => setPassengers(Number(e.target.value))}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition"
+                    >
+                      <option value={1}>1 Passenger (Solo)</option>
+                      <option value={2}>2 Passengers</option>
+                      <option value={3}>3 Passengers</option>
+                      <option value={4}>4 Passengers (Family)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-700/60">
+                  <div className="flex items-center gap-2 text-xs text-emerald-400 font-medium">
+                    <Icon name="check" size={14} />
+                    <span>Single Unified Ticket • Zero Surge • Guaranteed Connections</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSearchLoading(true);
+                      setTimeout(() => setSearchLoading(false), 400);
+                    }}
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2 hover:scale-105"
+                  >
+                    <Icon name="zap" size={16} />
+                    <span>{searchLoading ? 'Assembling Corridor...' : (lang === 'mr' ? 'मार्ग शोधा' : 'Assemble Multi-Modal Routes')}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <span>{lang === 'mr' ? '३ तुलनात्मक योजना कार्ड्स' : '3 Guaranteed Journey Plans'}</span>
+                    <span className="text-xs text-slate-400 font-normal">({origin} ➔ {destination})</span>
+                  </h3>
+                  <span className="text-xs text-slate-400">All prices locked upfront</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {PLANS_SEED.map((plan) => {
+                    const isSelected = selectedPlan.planId === plan.planId;
+                    const calculatedFare = plan.totalFare * passengers;
+
+                    return (
+                      <div
+                        key={plan.planId}
+                        onClick={() => setSelectedPlan(plan)}
+                        className={`cursor-pointer rounded-2xl p-5 transition-all border relative flex flex-col justify-between hover:scale-[1.02] ${
+                          isSelected
+                            ? 'bg-gradient-to-b from-slate-800 to-slate-900 border-blue-500 shadow-xl shadow-blue-500/20 ring-2 ring-blue-500/30'
+                            : 'bg-slate-800/60 hover:bg-slate-800/90 border-slate-700'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${plan.badgeColor}`}>
+                            {plan.badge}
+                          </span>
+                          <span className="text-xs font-semibold text-slate-400 flex items-center gap-1">
+                            <Icon name="clock" size={13} />
+                            {plan.totalDuration}
+                          </span>
+                        </div>
+
+                        <div className="mb-4">
+                          <h4 className="text-lg font-extrabold text-white">
+                            {lang === 'mr' ? plan.nameMr : plan.name}
+                          </h4>
+                          <p className="text-xs text-slate-300 mt-0.5">{plan.tagline}</p>
+                        </div>
+
+                        <div className="space-y-2 mb-5 bg-slate-900/70 p-3 rounded-xl border border-slate-700/50">
+                          {plan.legs.map((leg, lIdx) => (
+                            <div key={lIdx} className="flex items-center justify-between text-xs">
+                              <div className="flex items-center gap-2">
+                                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                                  lIdx === 0 ? 'bg-amber-500/20 text-amber-400' :
+                                  lIdx === 1 ? 'bg-blue-500/20 text-blue-400' :
+                                  'bg-emerald-500/20 text-emerald-400'
+                                }`}>
+                                  {lIdx + 1}
+                                </span>
+                                <span className="text-slate-300 font-medium truncate max-w-[150px]">{leg.mode}</span>
+                              </div>
+                              <span className="font-semibold text-slate-200">₹{leg.fare * passengers}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div>
+                          <div className="flex items-baseline justify-between mb-3 pt-2 border-t border-slate-700/60">
+                            <div>
+                              <span className="text-xs text-slate-400 block">Total Locked Price</span>
+                              <span className="text-2xl font-black text-white">₹{calculatedFare}</span>
+                              {passengers > 1 && (
+                                <span className="text-[11px] text-slate-400 ml-1">({passengers} pax)</span>
+                              )}
+                            </div>
+                            <span className="text-[11px] font-medium text-emerald-400 flex items-center gap-1">
+                              <Icon name="shield" size={12} />
+                              Zero Surge
+                            </span>
+                          </div>
+
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedPlan(plan);
+                              setActiveTab('checkout');
+                            }}
+                            className={`w-full py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2 ${
+                              isSelected
+                                ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/30'
+                                : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
+                            }`}
+                          >
+                            <span>{isSelected ? 'Proceed to Unified Checkout' : 'Select This Plan'}</span>
+                            <Icon name="arrowRight" size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-400">
+                <div className="p-3 rounded-xl bg-slate-800/40 border border-slate-700/50 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0">
+                    <Icon name="zap" size={16} />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-slate-200 block">Smart Delay Buffer</span>
+                    <span>If the bus is delayed, the destination auto waits at Bay #2 automatically.</span>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-800/40 border border-slate-700/50 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0">
+                    <Icon name="utensils" size={16} />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-slate-200 block">Highway Halt Pre-Order</span>
+                    <span>Order thali at Hotel Jagdamba (Indapur). Delivered directly to your bus seat.</span>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-800/40 border border-slate-700/50 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
+                    <Icon name="shield" size={16} />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-slate-200 block">Teen Safe Ride Guard</span>
+                    <span>Boarding PIN (7302) & real-time guardian tracking with Dial 112 link.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'checkout' && (
+            <div className="space-y-6">
+              <div className="transit-glass rounded-2xl p-5 border border-slate-700 shadow-xl">
+                <div className="flex items-center justify-between pb-4 border-b border-slate-700 mb-5">
+                  <div>
+                    <h2 className="text-lg font-bold text-white">
+                      {lang === 'mr' ? 'एकत्रित प्रवासाचा तपशील व आरक्षण' : 'Trip Summary & Unified Checkout'}
+                    </h2>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Single ticket covers First-Mile Auto + Intercity Express Bus + Last-Mile Auto
+                    </p>
+                  </div>
+                  <span className="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 font-bold border border-blue-500/30">
+                    {selectedPlan.name} Plan
+                  </span>
+                </div>
+
+                <div className="space-y-3 mb-6">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    {lang === 'mr' ? 'प्रत्येक टप्प्याचा स्पष्ट खर्च व आरक्षित तपशील:' : 'Leg-by-Leg Cost & Connection Details:'}
+                  </h3>
+
+                  <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <Icon name="car" size={20} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm text-white">1. First-Mile Auto Rickshaw</span>
+                          <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-semibold">Locked Fare</span>
+                        </div>
+                        <p className="text-xs text-slate-300 mt-0.5">
+                          {origin} ➔ Solapur Old S.T. Stand (Platform 4)
+                        </p>
+                        <div className="flex flex-wrap gap-3 mt-1.5 text-[11px] text-slate-400">
+                          <span>Driver: <b>Ramesh Jadhav</b> (4.7★)</span>
+                          <span>Vehicle: <b>MH 13 AB 1234</b></span>
+                          <span className="text-amber-400 font-bold">Ride OTP: 4821</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right sm:self-center shrink-0">
+                      <span className="text-base font-extrabold text-white">₹{60 * passengers}</span>
+                      <span className="text-[10px] text-slate-400 block">Prepaid via SahiYatra</span>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <Icon name="bus" size={20} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm text-white">2. MSRTC Shivshahi AC Bus</span>
+                          <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded font-semibold">Reserved</span>
+                        </div>
+                        <p className="text-xs text-slate-300 mt-0.5">
+                          Solapur Old S.T. Stand ➔ Swargate S.T. Stand, Pune
+                        </p>
+                        <div className="flex flex-wrap gap-3 mt-1.5 text-[11px] text-slate-400">
+                          <span>Platform: <b>Platform #4</b></span>
+                          <span>Seat: <b>14A (Window)</b></span>
+                          <span>Buffer: <b>30m Intelligent Buffer</b></span>
+                          <span>Dep: <b>11:00 AM</b></span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right sm:self-center shrink-0">
+                      <span className="text-base font-extrabold text-white">₹{330 * passengers}</span>
+                      <span className="text-[10px] text-slate-400 block">MSRTC Reserved</span>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <Icon name="car" size={20} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm text-white">3. Last-Mile Auto Rickshaw</span>
+                          <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-semibold">Held on Arrival</span>
+                        </div>
+                        <p className="text-xs text-slate-300 mt-0.5">
+                          Swargate S.T. Stand (Bay 2) ➔ {destination}
+                        </p>
+                        <div className="flex flex-wrap gap-3 mt-1.5 text-[11px] text-slate-400">
+                          <span>Auto Bay: <b>Bay #2 (Prepaid Deck)</b></span>
+                          <span>Driver: <b>Santosh Shinde</b> (4.8★)</span>
+                          <span className="text-emerald-400 font-bold">Auto Held on Arrival</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right sm:self-center shrink-0">
+                      <span className="text-base font-extrabold text-white">₹{80 * passengers}</span>
+                      <span className="text-[10px] text-slate-400 block">Guaranteed No Surge</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-900 p-4 rounded-xl border border-slate-700 mb-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div>
+                    <span className="text-xs text-slate-400 block">Total Combined Locked Price (All 3 Legs)</span>
+                    <span className="text-2xl font-black text-white">
+                      ₹{470 * passengers}
+                    </span>
+                    <span className="text-xs text-emerald-400 ml-2 font-medium">All-inclusive • Zero hidden charges</span>
+                  </div>
+                  <div className="text-xs text-slate-300 text-right">
+                    <span>Includes First-Mile (₹{60*passengers}) + Bus (₹{330*passengers}) + Last-Mile (₹{80*passengers})</span>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-amber-500/10 border-2 border-amber-500/40 text-amber-200 mb-6 flex items-start gap-3">
+                  <Icon name="alert" size={20} className="text-amber-400 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-xs uppercase tracking-wider font-bold text-amber-400 block">
+                      {lang === 'mr' ? 'पारदर्शक दर व रद्द करण्याचे नियम:' : 'Transparent Fare & Cancellation Policy:'}
+                    </span>
+                    <p className="text-sm font-extrabold text-white mt-0.5">
+                      No surge pricing. Late fee: ₹50 only if cancelled within 1 hour of departure.
+                    </p>
+                    <p className="text-xs text-amber-200/80 mt-1">
+                      100% full refund if cancelled up to 1 hour prior. No hidden platform convenience fees.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                  <div>
+                    <label className="text-xs text-slate-400 font-semibold block mb-1">Primary Passenger Name</label>
+                    <input
+                      type="text"
+                      value={passengerName}
+                      onChange={(e) => setPassengerName(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400 font-semibold block mb-1">Mobile Number (For Ticket SMS & OTPs)</label>
+                    <input
+                      type="text"
+                      value={passengerPhone}
+                      onChange={(e) => setPassengerPhone(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700 mb-6 flex items-start gap-3 cursor-pointer" onClick={() => setTeenSafeChecked(!teenSafeChecked)}>
+                  <input
+                    type="checkbox"
+                    checked={teenSafeChecked}
+                    onChange={(e) => setTeenSafeChecked(e.target.checked)}
+                    className="w-4 h-4 rounded text-blue-600 bg-slate-900 border-slate-600 focus:ring-0 mt-0.5 cursor-pointer"
+                  />
+                  <div>
+                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <span>Enable Teen Safe Ride Mode (Ages 16–18)</span>
+                      <span className="text-[10px] px-1.5 py-0.2 bg-purple-500/20 text-purple-300 rounded font-semibold border border-purple-500/30">Free Guard</span>
+                    </span>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Adds parent SMS tracking alerts, boarding PIN verification (7302), and Maharashtra Police Dial 112 priority routing.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleBookAllLegs}
+                  className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-base shadow-xl shadow-blue-600/30 transition flex items-center justify-center gap-2 hover:scale-[1.01]"
+                >
+                  <Icon name="check" size={20} />
+                  <span>{lang === 'mr' ? 'सर्व टप्पे एकाच वेळी बुक करा' : 'Book All Legs (₹' + (470 * passengers) + ')'}</span>
+                </button>
+              </div>
+
+              {bookingConfirmed && confirmedBookingData && (
+                <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                  <div className="transit-glass bg-slate-900 max-w-lg w-full rounded-3xl p-6 border-2 border-emerald-500/50 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+                    <div className="text-center mb-5">
+                      <div className="w-14 h-14 mx-auto rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-emerald-400 mb-2 animate-bounce">
+                        <Icon name="check" size={30} />
+                      </div>
+                      <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">
+                        Unified Ticket Confirmed
+                      </span>
+                      <h3 className="text-2xl font-black text-white mt-1">
+                        SahiYatra Digital Pass
+                      </h3>
+                      <p className="text-xs text-slate-400">Ref: <b>{confirmedBookingData.bookingRef}</b> • Zero Surge Locked</p>
+                    </div>
+
+                    <div className="bg-white p-4 rounded-2xl w-52 mx-auto mb-4 text-center shadow-lg relative overflow-hidden">
+                      <div className="absolute left-2 right-2 h-1 bg-gradient-to-r from-transparent via-blue-600 to-transparent animate-laser z-20 shadow-[0_0_12px_#2563eb]"></div>
+
+                      <div className="border-4 border-slate-900 p-2 rounded-xl relative z-10">
+                        <div className="grid grid-cols-6 gap-1 w-36 h-36 mx-auto">
+                          {Array.from({ length: 36 }).map((_, i) => (
+                            <div
+                              key={i}
+                              className={`rounded-sm ${
+                                (i % 2 === 0 && i % 3 === 0) || i === 0 || i === 5 || i === 30 || i === 35
+                                  ? 'bg-slate-950'
+                                  : (i * 7) % 3 === 0 ? 'bg-slate-900' : 'bg-slate-100'
+                              }`}
+                            ></div>
+                          ))}
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono text-slate-800 font-bold block mt-2">
+                        SCAN TO BOARD ALL 3 LEGS
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 mb-5 text-center">
+                      <div className="p-2.5 rounded-xl bg-slate-800 border border-slate-700">
+                        <span className="text-[10px] text-slate-400 block font-semibold">1st Auto Ride OTP</span>
+                        <span className="text-xl font-black text-amber-400 font-mono tracking-wider">4821</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-slate-800 border border-slate-700">
+                        <span className="text-[10px] text-slate-400 block font-semibold">2nd Auto Ride OTP</span>
+                        <span className="text-xl font-black text-emerald-400 font-mono tracking-wider">9152</span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => {
+                          setBookingConfirmed(false);
+                          setActiveTab('transit');
+                        }}
+                        className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition shadow-lg shadow-blue-600/30 hover:scale-105"
+                      >
+                        Launch Active Journey Mode ➔
+                      </button>
+                      <button
+                        onClick={() => setBookingConfirmed(false)}
+                        className="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'transit' && (
+            <div className="space-y-6">
+              <InteractiveRouteSimulator />
+
+              <div className="transit-glass rounded-2xl p-5 border border-slate-700 shadow-xl">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-slate-700">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                        {lang === 'mr' ? 'थेट सुरू असलेला प्रवास' : 'Live In-Transit Trip #TRIP-MH-84920'}
+                      </span>
+                    </div>
+                    <h2 className="text-lg font-bold text-white mt-0.5">
+                      Ashok Chowk (Solapur) ➔ Hinjawadi Phase 1 (Pune)
+                    </h2>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleCopyTrackingLink}
+                      className="text-xs px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition hover:scale-105"
+                    >
+                      <Icon name="share" size={14} className="text-blue-400" />
+                      <span>{copiedLink ? 'Copied Family Link!' : 'Share Live GPS Link'}</span>
+                    </button>
+                    <a
+                      href="https://wa.me/?text=Track%20my%20live%20SahiYatra%20multi-modal%20trip%20here:%20https://sahiyatra.app/track/TRIP-MH-84920"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs px-3 py-2 rounded-xl bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-600/30 font-medium transition"
+                    >
+                      WhatsApp
+                    </a>
+                  </div>
+                </div>
+
+                <div className={`mt-4 p-4 rounded-xl border ${
+                  delayMins > 0
+                    ? 'bg-amber-500/10 border-amber-500/40 text-amber-200'
+                    : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'
+                }`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <Icon name={delayMins > 0 ? "alert" : "check"} size={20} className={delayMins > 0 ? "text-amber-400 shrink-0 mt-0.5" : "text-emerald-400 shrink-0 mt-0.5"} />
+                      <div>
+                        <span className="text-xs font-bold uppercase tracking-wider block">
+                          {delayMins > 0 ? 'Dynamic Warning — Intelligent Buffer Activated' : 'On-Time Schedule Confirmed'}
+                        </span>
+                        <p className="text-sm font-semibold text-white mt-0.5">
+                          {delayMins > 0
+                            ? `+${delayMins} min delay detected due to Hadapsar traffic — intelligent buffer activated, next auto held at destination for you in 5 min at Swargate Bay 2.`
+                            : 'All connecting legs running strictly on time. Driver Ramesh is 2 mins away.'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0 bg-slate-900/80 p-1 rounded-lg border border-slate-700">
+                      <button
+                        onClick={() => setDelayMins(0)}
+                        className={`text-[10px] px-2 py-1 rounded font-semibold transition ${delayMins === 0 ? 'bg-emerald-600 text-white' : 'text-slate-400'}`}
+                      >
+                        +0m (On Time)
+                      </button>
+                      <button
+                        onClick={() => setDelayMins(15)}
+                        className={`text-[10px] px-2 py-1 rounded font-semibold transition ${delayMins === 15 ? 'bg-amber-600 text-white' : 'text-slate-400'}`}
+                      >
+                        +15m Delay
+                      </button>
+                      <button
+                        onClick={() => setDelayMins(35)}
+                        className={`text-[10px] px-2 py-1 rounded font-semibold transition ${delayMins === 35 ? 'bg-red-600 text-white' : 'text-slate-400'}`}
+                      >
+                        +35m Delay
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 mt-5 text-center text-xs font-semibold">
+                  <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                    <span className="block text-[10px] opacity-75">LEG 1 • COMPLETED</span>
+                    <span>Doorstep Auto</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-blue-600 text-white border border-blue-400 shadow-lg shadow-blue-600/30">
+                    <span className="block text-[10px] opacity-80">LEG 2 • CURRENTLY IN-TRANSIT</span>
+                    <span>MSRTC Shivshahi Bus</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-300">
+                    <span className="block text-[10px] opacity-75">LEG 3 • HELD AT SWARGATE</span>
+                    <span>Connecting Auto (Bay 2)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="transit-glass rounded-2xl p-5 border border-slate-700 shadow-xl space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-700">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                        <Icon name="car" size={20} />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-white">First-Mile Auto Rickshaw</h3>
+                        <span className="text-xs text-slate-400">Doorstep ➔ Solapur Old S.T. Stand</span>
+                      </div>
+                    </div>
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-bold">
+                      Prepaid ₹60
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between bg-slate-900/80 p-3.5 rounded-xl border border-slate-700">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-full bg-slate-800 border-2 border-amber-500/50 flex items-center justify-center font-black text-amber-400 text-sm">
+                        RJ
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-extrabold text-sm text-white">Ramesh Jadhav</span>
+                          <span className="text-xs text-amber-400 font-bold">4.7★</span>
+                        </div>
+                        <span className="text-xs text-slate-400 font-mono">MH 13 AB 1234 (Bajaj RE Auto)</span>
+                      </div>
+                    </div>
+                    <a
+                      href="tel:+919422088123"
+                      className="p-2.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 transition hover:scale-110"
+                      title="Call Driver"
+                    >
+                      <Icon name="phone" size={18} />
+                    </a>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 text-center">
+                    <div className="p-3 rounded-xl bg-slate-900 border border-slate-700">
+                      <span className="text-[11px] text-slate-400 block font-medium">Locked Ride OTP</span>
+                      <span className="text-2xl font-black text-amber-400 font-mono tracking-widest">4821</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-slate-900 border border-slate-700">
+                      <span className="text-[11px] text-slate-400 block font-medium">Locked Upfront Fare</span>
+                      <span className="text-2xl font-black text-white">₹60</span>
+                      <span className="text-[10px] text-emerald-400 block font-medium">Zero meter dispute</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setShowSOSModal(true);
+                      setSosCountDown(5);
+                      setSosDispatched(false);
+                    }}
+                    className="w-full py-3.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-sm shadow-xl shadow-red-600/30 transition flex items-center justify-center gap-2 pulse-amber"
+                  >
+                    <Icon name="alert" size={18} />
+                    <span>EMERGENCY SOS (DIAL 112 & NOTIFY GUARDIAN)</span>
+                  </button>
+                </div>
+
+                <div className="transit-glass rounded-2xl p-5 border border-slate-700 shadow-xl space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-700">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
+                        {lang === 'mr' ? 'चालक दिशादर्शक स्क्रीन' : 'Driver Dispatch Card (Show to Auto Driver)'}
+                      </span>
+                    </div>
+                    <span className="text-xs text-slate-400 font-medium">Bilingual Marathi/English</span>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-900 p-4 rounded-2xl border-2 border-amber-500/40 space-y-3">
+                    <div>
+                      <span className="text-[11px] font-bold text-amber-400 uppercase tracking-widest block">
+                        गंतव्य स्थान (चालकांसाठी मराठीत):
+                      </span>
+                      <p className="text-xl md:text-2xl font-extrabold text-amber-200 mt-1 font-mr leading-tight">
+                        सोलापूर जुना एस.टी. स्टँड, प्लॅटफॉर्म क्रमांक ४
+                      </p>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-800">
+                      <span className="text-[11px] font-semibold text-slate-400 block">
+                        English Destination:
+                      </span>
+                      <p className="text-sm font-bold text-white">
+                        Solapur Old S.T. Stand (Platform 4 Express Bay)
+                      </p>
+                    </div>
+
+                    <div className="pt-2 flex items-center justify-between">
+                      <span className="text-xs text-slate-300">
+                        ड्रायव्हरला पत्ता ऐकवा (Speak Marathi):
+                      </span>
+                      <button
+                        onClick={() => speakMarathiDestination("गंतव्य स्थान: सोलापूर जुना एस.टी. स्टँड, प्लॅटफॉर्म क्रमांक ४")}
+                        className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold flex items-center gap-1.5 shadow transition hover:scale-105"
+                      >
+                        <Icon name="volume" size={14} />
+                        <span>{speechPlaying ? 'बोलत आहे...' : 'ऐकवा (Speak)'}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-700 text-xs space-y-1.5">
+                    <div className="flex justify-between text-slate-300">
+                      <span>Connecting Bus:</span>
+                      <span className="font-bold text-white">MSRTC Shivshahi AC (#MH-13-CU-4491)</span>
+                    </div>
+                    <div className="flex justify-between text-slate-300">
+                      <span>Platform:</span>
+                      <span className="font-bold text-blue-400">Platform #4 (Bay A)</span>
+                    </div>
+                    <div className="flex justify-between text-slate-300">
+                      <span>Current Speed:</span>
+                      <span className="font-bold text-emerald-400">{gpsCoord.speed} km/h (Smooth Traffic)</span>
+                    </div>
+                    <div className="flex justify-between text-slate-300">
+                      <span>GPS Coordinates:</span>
+                      <span className="font-mono text-slate-400">{gpsCoord.lat}, {gpsCoord.lng}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {showSOSModal && (
+                <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+                  <div className="transit-glass bg-slate-950 max-w-md w-full rounded-3xl p-6 border-2 border-red-500 shadow-2xl relative text-center animate-in zoom-in-95">
+                    <div className="w-16 h-16 mx-auto rounded-full bg-red-600/20 border-2 border-red-500 flex items-center justify-center text-red-500 mb-3 animate-bounce">
+                      <Icon name="alert" size={32} />
+                    </div>
+
+                    {!sosDispatched ? (
+                      <>
+                        <h3 className="text-xl font-black text-white">
+                          TRIGGER EMERGENCY SOS?
+                        </h3>
+                        <p className="text-xs text-slate-300 mt-1 mb-4">
+                          Notifying Maharashtra Police Dial 112 & your emergency guardian with live encrypted GPS coordinates.
+                        </p>
+
+                        <div className="w-20 h-20 rounded-full mx-auto bg-red-950 border-4 border-red-600 flex items-center justify-center mb-5 text-3xl font-black text-white">
+                          {sosCountDown}
+                        </div>
+
+                        <div className="flex gap-3">
+                          <button
+                            onClick={() => setSosDispatched(true)}
+                            className="flex-1 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-extrabold text-sm"
+                          >
+                            Dispatch Now
+                          </button>
+                          <button
+                            onClick={() => setShowSOSModal(false)}
+                            className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm"
+                          >
+                            Cancel (False Alarm)
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="p-3 rounded-xl bg-red-950/60 border border-red-600/60 text-red-200 text-xs text-left space-y-2 mb-4">
+                          <span className="font-bold text-white block text-sm">🚨 POLICE DISPATCH NOTIFIED</span>
+                          <p>• Linked to: <b>MH Police Emergency Grid 112</b></p>
+                          <p>• Coordinates sent: <b>18.1587° N, 75.0319° E</b> (Indapur NH65)</p>
+                          <p>• Nearest Police Chowki: <b>Indapur Highway Chowki (1.8 km)</b></p>
+                          <p>• Guardian alerted via SMS: <b>+91 98220 54123</b></p>
+                        </div>
+                        <button
+                          onClick={() => setShowSOSModal(false)}
+                          className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm"
+                        >
+                          Close SOS Window
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'dhaba' && (
+            <div className="space-y-6">
+              <div className="transit-glass rounded-2xl p-5 border border-slate-700 shadow-xl bg-gradient-to-r from-slate-900 via-slate-800 to-amber-950/30">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        Scheduled Highway Stop (2:30 PM)
+                      </span>
+                      <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">
+                        4.5★ Hygiene Audited
+                      </span>
+                    </div>
+                    <h2 className="text-xl font-black text-white mt-1">
+                      Hotel Jagdamba Highway Dhaba (Indapur Bypass)
+                    </h2>
+                    <p className="text-xs text-slate-300 mt-0.5">
+                      FSSAI Certified • Clean Sanitized Washrooms • Pre-ordered meals ready the second your bus arrives!
+                    </p>
+                  </div>
+
+                  <div className="text-right sm:self-center shrink-0">
+                    <span className="text-xs text-slate-400 block">Halt Duration</span>
+                    <span className="text-lg font-bold text-amber-400">25 Minutes Halt</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-2 space-y-3">
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Icon name="utensils" className="text-amber-400" />
+                    <span>Quick Transit Menu (Piping Hot with Animated Kitchen Stream)</span>
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {DHABA_ITEMS.map((item) => {
+                      const qty = dhabaCart[item.id] || 0;
+                      return (
+                        <div
+                          key={item.id}
+                          className="bg-slate-800/80 p-4 rounded-xl border border-slate-700 flex flex-col justify-between hover:border-slate-500 transition hover:scale-[1.01] relative overflow-hidden"
+                        >
+                          {item.hasSteam && (
+                            <div className="absolute top-2 right-3 pointer-events-none flex gap-1">
+                              <span className="w-1 h-3 bg-amber-400/40 rounded-full animate-steam" style={{ animationDelay: '0s' }}></span>
+                              <span className="w-1 h-3.5 bg-amber-400/50 rounded-full animate-steam" style={{ animationDelay: '0.4s' }}></span>
+                              <span className="w-1 h-2.5 bg-amber-400/40 rounded-full animate-steam" style={{ animationDelay: '0.8s' }}></span>
+                            </div>
+                          )}
+
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-300">
+                                {item.tag}
+                              </span>
+                              <span className="text-xs text-slate-400 font-medium">{item.prep}</span>
+                            </div>
+                            <h4 className="font-bold text-sm text-white">{item.name}</h4>
+                            <p className="text-xs text-slate-300 font-mr mt-0.5">{item.nameMr}</p>
+                            <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">{item.desc}</p>
+                          </div>
+
+                          <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-700">
+                            <span className="text-base font-extrabold text-white">₹{item.price}</span>
+                            <div className="flex items-center gap-2 bg-slate-900 px-2 py-1 rounded-lg border border-slate-700">
+                              <button
+                                onClick={() => setDhabaCart(prev => ({ ...prev, [item.id]: Math.max(0, (prev[item.id] || 0) - 1) }))}
+                                className="w-6 h-6 rounded flex items-center justify-center text-slate-300 hover:text-white font-bold"
+                              >
+                                -
+                              </button>
+                              <span className="text-xs font-bold text-white w-4 text-center">{qty}</span>
+                              <button
+                                onClick={() => setDhabaCart(prev => ({ ...prev, [item.id]: (prev[item.id] || 0) + 1 }))}
+                                className="w-6 h-6 rounded flex items-center justify-center text-slate-300 hover:text-white font-bold"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="transit-glass rounded-2xl p-5 border border-slate-700 h-fit space-y-4">
+                  <h3 className="text-sm font-bold text-white pb-2 border-b border-slate-700">
+                    Your In-Transit Order
+                  </h3>
+
+                  {cartItemCount === 0 ? (
+                    <div className="text-center py-6 text-slate-400 text-xs">
+                      <Icon name="utensils" size={24} className="mx-auto mb-2 text-slate-500" />
+                      <span>Select items from the menu to pre-order for the 2:30 PM Indapur stop.</span>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {Object.entries(dhabaCart).map(([id, qty]) => {
+                        if (qty <= 0) return null;
+                        const item = DHABA_ITEMS.find(i => i.id === id);
+                        return (
+                          <div key={id} className="flex justify-between items-center text-xs">
+                            <span className="text-slate-300 font-medium">
+                              {item.name} × {qty}
+                            </span>
+                            <span className="font-bold text-white">₹{item.price * qty}</span>
+                          </div>
+                        );
+                      })}
+
+                      <div className="pt-3 border-t border-slate-700 flex justify-between items-center">
+                        <span className="text-sm font-bold text-white">Total Bill:</span>
+                        <span className="text-lg font-black text-amber-400">₹{cartTotal}</span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-300 space-y-1">
+                        <span className="text-slate-400 block font-semibold">Delivery Target:</span>
+                        <span>MSRTC Bus Seat #14A / Express Counter Token</span>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setDhabaOrderPlaced(true);
+                          setDhabaToken('DH-' + Math.floor(100 + Math.random() * 900));
+                        }}
+                        className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-sm shadow-lg shadow-amber-600/30 transition hover:scale-[1.02]"
+                      >
+                        Confirm & Pay at Stop (₹{cartTotal})
+                      </button>
+                    </div>
+                  )}
+
+                  {dhabaOrderPlaced && (
+                    <div className="p-4 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/40 text-center space-y-1 animate-in fade-in zoom-in-95">
+                      <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest block">
+                        Order Received by Kitchen!
+                      </span>
+                      <p className="text-xs text-slate-300">Show this token at the express pickup desk:</p>
+                      <span className="text-2xl font-black font-mono text-white block mt-1">
+                        {dhabaToken}
+                      </span>
+                      <p className="text-[11px] text-emerald-300">
+                        Ready hot & fresh when bus pulls in at 2:30 PM.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'festival' && (
+            <div className="space-y-6">
+              <div className="transit-glass rounded-2xl p-5 border border-slate-700 shadow-xl">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-slate-700">
+                  <div>
+                    <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">
+                      MSRTC & Municipal Corporation Analytics
+                    </span>
+                    <h2 className="text-lg font-bold text-white mt-0.5">
+                      Festival Surge Demand: Diwali Week (Mon–Fri)
+                    </h2>
+                    <p className="text-xs text-slate-400">
+                      Tracking unserved passenger searches & route waitlists to dynamically deploy standby buses.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={handleDeployStandby}
+                    className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-600/30 transition flex items-center gap-2 hover:scale-105"
+                  >
+                    <Icon name="bus" size={15} />
+                    <span>Deploy 4 Standby Buses</span>
+                  </button>
+                </div>
+
+                {busesDeployedMsg && (
+                  <div className="mt-3 p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold animate-in fade-in">
+                    {busesDeployedMsg}
+                  </div>
+                )}
+
+                <div className="mt-6 space-y-4">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Unserved Passenger Searches vs Standby Fleet Deployed:
+                  </h3>
+
+                  <div className="space-y-3">
+                    {festivalList.map((item, idx) => (
+                      <div key={idx} className="bg-slate-900/80 p-3.5 rounded-xl border border-slate-700">
+                        <div className="flex justify-between items-center text-xs mb-1.5">
+                          <span className="font-bold text-white">{item.day}</span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-slate-400">Unserved: <b className="text-amber-400">{item.unserved}</b></span>
+                            <span className="text-slate-400">Waitlist: <b className="text-rose-400">{item.waitlist}</b></span>
+                            <span className="text-emerald-400 font-semibold">{item.standby} Standby Buses Active</span>
+                          </div>
+                        </div>
+
+                        <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden flex">
+                          <div
+                            className="bg-gradient-to-r from-amber-500 to-rose-600 h-full rounded-full transition-all duration-700"
+                            style={{ width: `${item.percent}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="transit-glass rounded-2xl p-5 border border-purple-500/30 shadow-xl space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-700">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold">
+                        <Icon name="shield" size={20} />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-white">Teen Safe Ride Guard (Ages 16–18)</h3>
+                        <span className="text-xs text-purple-300">Coaching Hubs & College Students Transit</span>
+                      </div>
+                    </div>
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">
+                      Active Guard
+                    </span>
+                  </div>
+
+                  <div className="space-y-2.5 text-xs">
+                    <div className="p-3 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-between">
+                      <span className="text-slate-300">Parent Verification Badge:</span>
+                      <span className="font-bold text-emerald-400">Santosh Kulkarni (Verified ✓)</span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-between">
+                      <span className="text-slate-300">Boarding PIN (Driver must verify):</span>
+                      <span className="text-base font-black text-amber-400 font-mono tracking-wider">7302</span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-between">
+                      <span className="text-slate-300">Police Grid Integration:</span>
+                      <span className="font-bold text-blue-400">Maharashtra Police Dial 112 Linked</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="transit-glass rounded-2xl p-5 border border-slate-700 shadow-xl space-y-4">
+                  <h3 className="text-sm font-bold text-white pb-3 border-b border-slate-700 flex items-center gap-2">
+                    <Icon name="mapPin" className="text-red-400" />
+                    <span>Corridor Emergency Help Points (NH65 / Solapur-Pune)</span>
+                  </h3>
+
+                  <div className="space-y-2.5 text-xs">
+                    <div className="p-3 rounded-xl bg-slate-900 border border-slate-700">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="font-bold text-white">Indapur Highway Police Chowki</span>
+                        <span className="text-emerald-400 font-semibold">24×7 Manned</span>
+                      </div>
+                      <span className="text-slate-400">Highway Patrol Unit #4 • 1.8 km from Indapur Bypass</span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-900 border border-slate-700">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="font-bold text-white">Tembhurni Rural Trauma Care Hospital</span>
+                        <span className="text-blue-400 font-semibold">Ambulance on Standby</span>
+                      </div>
+                      <span className="text-slate-400">Solapur-Pune Expressway Junction • Ph: +91 2183 234100</span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-900 border border-slate-700">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="font-bold text-white">Swargate ST Stand Fast-Track Help Desk</span>
+                        <span className="text-amber-400 font-semibold">MSRTC Security Booth</span>
+                      </div>
+                      <span className="text-slate-400">Near Prepaid Auto Bay #2 • Lost & Found / Help Booth</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'driver' && (
+            <div className="space-y-6">
+              <div className="transit-glass rounded-2xl p-5 border border-slate-700 shadow-xl">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-slate-700">
+                  <div>
+                    <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">
+                      {lang === 'mr' ? 'रिक्षा चालक साथीदार डॅशबोर्ड' : 'Auto Driver Partner Terminal'}
+                    </span>
+                    <h2 className="text-lg font-bold text-white mt-0.5">
+                      Pre-Paid Transit Connections (Zero Commission Cut)
+                    </h2>
+                    <p className="text-xs text-slate-400">
+                      Pick up passengers arriving or departing from bus stands with guaranteed fares & OTP verification.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                    <span className="text-xs font-bold text-emerald-400">Duty Status: ONLINE (Stand Gate 4)</span>
+                  </div>
+                </div>
+
+                {driverAcceptToast && (
+                  <div className="mt-3 p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold animate-in fade-in">
+                    {driverAcceptToast}
+                  </div>
+                )}
+
+                <div className="mt-5 space-y-3">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Incoming Pre-Paid Ride Requests:
+                  </h3>
+
+                  {driverRides.length === 0 ? (
+                    <div className="text-center py-8 text-slate-400 text-xs">
+                      All current stand requests have been accepted. Monitoring incoming bus arrivals...
+                    </div>
+                  ) : (
+                    driverRides.map((ride) => (
+                      <div
+                        key={ride.id}
+                        className="bg-slate-900/90 p-4 rounded-xl border border-slate-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-extrabold text-sm text-white">{ride.name}</span>
+                            {ride.teen && (
+                              <span className="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.2 rounded font-bold border border-purple-500/30">
+                                Teen Safe Ride (PIN {ride.otp})
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-300">
+                            <b>From:</b> {ride.from} ➔ <b>To:</b> {ride.to}
+                          </p>
+                          <div className="flex gap-3 text-[11px] text-slate-400">
+                            <span>Distance: <b>{ride.dist}</b></span>
+                            <span>OTP: <b className="text-amber-400 font-mono">{ride.otp}</b></span>
+                            {ride.parent && <span>Guardian: {ride.parent}</span>}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+                          <div className="text-right mr-2">
+                            <span className="text-lg font-black text-emerald-400">₹{ride.fare}</span>
+                            <span className="text-[10px] text-slate-400 block">Prepaid in full</span>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              setDriverRides(prev => prev.filter(r => r.id !== ride.id));
+                              setDriverAcceptToast(`Accepted ride for ${ride.name}! Head to Stand Gate 4 for passenger boarding.`);
+                              setTimeout(() => setDriverAcceptToast(''), 4000);
+                            }}
+                            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition hover:scale-105"
+                          >
+                            Accept (स्वीकारा)
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setDriverRides(prev => prev.filter(r => r.id !== ride.id));
+                            }}
+                            className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-semibold text-xs transition"
+                          >
+                            Pass
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <footer className="mt-12 text-center text-xs text-slate-500 pb-8 space-y-2">
+            <p>SahiYatra (सही यात्रा) — Maharashtra Multi-Modal Transit Grid (Solapur • Pune • Mumbai • Pandharpur • Kolhapur)</p>
+            <p className="text-[11px] text-slate-600">Built with React, Tailwind CSS, Express REST API • Guaranteed Zero Surge Pricing & Intelligent Delay Buffer Architecture</p>
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

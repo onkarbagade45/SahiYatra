@@ -1,0 +1,15 @@
+{
+  "name": "sahiyatra",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "SahiYatra - One App for the Whole Trip (Multi-modal transit platform)",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
+  }
+}

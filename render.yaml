@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: sahiyatra
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/hubs
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SAHIYATRA_AUTH_SECRET
+        generateValue: true
+      - key: SAHIYATRA_ALLOWED_ORIGINS
+        value: https://sahiyatra.onrender.com
