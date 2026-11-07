@@ -24,10 +24,15 @@
       font-family: Manrope, "Noto Sans Devanagari", sans-serif;
       color: var(--ink);
       background:
-        radial-gradient(circle at 14% 18%, rgba(255, 127, 99, .42), transparent 22rem),
-        radial-gradient(circle at 82% 12%, rgba(179, 28, 44, .48), transparent 26rem),
-        linear-gradient(145deg, #3e090d 0%, #961d27 46%, #260508 100%);
+        linear-gradient(140deg, rgba(7, 26, 66, 0.88) 0%, rgba(15, 23, 42, 0.92) 55%, rgba(74, 17, 85, 0.86) 100%),
+        url('wallpaper.jpg') center top / cover no-repeat fixed;
       overflow-x: hidden;
+    }
+    body.light-glass {
+      background:
+        linear-gradient(140deg, rgba(219, 234, 254, 0.90) 0%, rgba(237, 233, 254, 0.93) 55%, rgba(250, 232, 255, 0.90) 100%),
+        url('wallpaper.jpg') center top / cover no-repeat fixed;
+      color: #172554;
     }
     body::before {
       content: "";
@@ -47,10 +52,19 @@
       border: 1px solid var(--line);
       border-radius: 36px;
       overflow: hidden;
-      background: rgba(92, 13, 20, .42);
+      background: rgba(25, 31, 112, .38);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       box-shadow: 0 30px 100px rgba(18, 0, 2, .5), inset 0 1px 0 rgba(255,255,255,.12);
+    }
+    .light-glass .app {
+      --ink: #172554;
+      --muted: rgba(30, 41, 59, .68);
+      --glass: rgba(255, 255, 255, .30);
+      --glass-strong: rgba(255, 255, 255, .48);
+      --line: rgba(255, 255, 255, .65);
+      background: rgba(255, 255, 255, .32);
+      box-shadow: 0 30px 100px rgba(67, 56, 202, .18), inset 0 1px 0 rgba(255,255,255,.78);
     }
     .sidebar {
       padding: 24px 18px;
@@ -108,8 +122,8 @@
     }
     .sos {
       padding: 0 14px; color: white; border: 1px solid rgba(255,255,255,.32);
-      background: linear-gradient(135deg, #ff5a51, #b81729);
-      box-shadow: 0 10px 24px rgba(189, 11, 35, .28);
+      background: linear-gradient(135deg, #38bdf8, #d946ef);
+      box-shadow: 0 10px 24px rgba(217, 70, 239, .28);
       font-weight: 800; font-size: 12px; letter-spacing: .2px;
     }
     .dashboard {
@@ -126,9 +140,20 @@
       -webkit-backdrop-filter: blur(22px);
     }
     .hero {
-      min-height: 220px; border-radius: 28px; padding: 24px;
-      display: grid; grid-template-columns: 1fr 170px; gap: 18px;
+      min-height: 240px; border-radius: 28px; padding: 26px;
+      display: grid; grid-template-columns: 1fr 180px; gap: 18px;
       position: relative; overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(7, 19, 48, 0.92) 0%, rgba(7, 26, 66, 0.80) 50%, rgba(15, 23, 42, 0.40) 100%),
+        url('wallpaper.jpg') right center / cover no-repeat;
+      border: 1px solid var(--line);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+    .light-glass .hero {
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.82) 52%, rgba(255, 255, 255, 0.40) 100%),
+        url('wallpaper.jpg') right center / cover no-repeat;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 20px 50px rgba(67, 56, 202, 0.15);
     }
     .hero::after {
       content: ""; position: absolute; width: 220px; height: 220px;
@@ -253,11 +278,11 @@
         <div><strong>SahiYatra</strong><span>Whole trip. One pass.</span></div>
       </div>
       <nav class="nav">
-        <button class="active">⌂ &nbsp; Home</button>
-        <button>⌕ &nbsp; Search route</button>
-        <button>◇ &nbsp; My trips</button>
-        <button>♢ &nbsp; Food stops</button>
-        <button>⊙ &nbsp; Safety</button>
+        <button class="active" data-action="home">⌂ &nbsp; Home</button>
+        <button data-action="search">⌕ &nbsp; Search route</button>
+        <button data-action="trips">◇ &nbsp; My trips</button>
+        <button data-action="food">♢ &nbsp; Food stops</button>
+        <button data-action="safety">⊙ &nbsp; Safety</button>
       </nav>
       <div class="side-status">
         <small>TRAVEL STATUS</small>
@@ -339,7 +364,11 @@
   </div>
 
   <nav class="bottom-nav">
-    <button class="active">⌂<br>Home</button><button>⌕<br>Search</button><button>◇<br>Trips</button><button>♨<br>Food</button><button>⊙<br>Safety</button>
+    <button class="active" data-action="home">⌂<br>Home</button>
+    <button data-action="search">⌕<br>Search</button>
+    <button data-action="trips">◇<br>Trips</button>
+    <button data-action="food">♨<br>Food</button>
+    <button data-action="safety">⊙<br>Safety</button>
   </nav>
 
   <div class="sheet" id="sheet">
@@ -356,21 +385,93 @@
     document.querySelectorAll('.trip-card').forEach(card => {
       card.addEventListener('click', () => {
         document.getElementById('sheetTitle').textContent = card.querySelector('h3').textContent;
+        sheet.querySelector('p').textContent = 'Auto pickup · Bus seat · Final auto ride · Zero surge guarantee';
+        bookButton.textContent = 'Book trip';
+        bookButton.disabled = false;
         sheet.classList.add('open');
       });
     });
     document.querySelector('.close').addEventListener('click', () => sheet.classList.remove('open'));
     sheet.addEventListener('click', event => { if (event.target === sheet) sheet.classList.remove('open'); });
+    const routeSearch = document.getElementById('routeSearch');
+    routeSearch.addEventListener('input', event => {
+      const query = event.target.value.trim().toLowerCase();
+      document.querySelectorAll('.trip-card').forEach(card => {
+        card.style.display = !query || card.dataset.name.toLowerCase().includes(query) ? '' : 'none';
+      });
+    });
+    const bookButton = document.querySelector('.sheet-actions .book');
+    bookButton.addEventListener('click', () => {
+      bookButton.textContent = 'Booking confirmed ✓';
+      bookButton.disabled = true;
+    });
+    document.querySelectorAll('[data-action]').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('[data-action]').forEach(item => item.classList.remove('active'));
+        button.classList.add('active');
+        const action = button.dataset.action;
+        if (action === 'home') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (action === 'search') {
+          routeSearch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          routeSearch.focus();
+        } else if (action === 'trips') {
+          document.getElementById('sheetTitle').textContent = 'My trips';
+          sheet.querySelector('p').textContent = 'Solapur → Pune · Ticket SY-4821 · Departure 06:30 AM';
+          bookButton.textContent = 'Open active trip';
+          bookButton.disabled = false;
+          sheet.classList.add('open');
+        } else if (action === 'food') {
+          document.getElementById('sheetTitle').textContent = 'Dhaba pre-order';
+          sheet.querySelector('p').textContent = 'Maharashtrian thali ₹90 · Poha ₹30 · Masala chai ₹10';
+          bookButton.textContent = 'Pre-order food';
+          bookButton.disabled = false;
+          sheet.classList.add('open');
+        } else if (action === 'safety') {
+          document.getElementById('sheetTitle').textContent = 'Safety center';
+          sheet.querySelector('p').textContent = 'Teen mode · Boarding PIN 7302 · Emergency contacts · Police 112';
+          bookButton.textContent = 'Open SOS center';
+          bookButton.disabled = false;
+          sheet.classList.add('open');
+        }
+      });
+    });
     document.querySelectorAll('.quick, .story, .nav button, .bottom-nav button').forEach(button => {
       button.addEventListener('click', () => {
         if (button.classList.contains('quick')) {
           document.querySelectorAll('.quick').forEach(item => item.classList.remove('active'));
           button.classList.add('active');
         }
+        if (button.classList.contains('story')) {
+          document.getElementById('sheetTitle').textContent = button.dataset.title;
+          sheet.querySelector('p').textContent =
+            button.dataset.title === 'Safety'
+              ? 'Teen ride verification, boarding PIN and emergency contacts.'
+              : button.dataset.title + ' highlights for your Solapur to Pune journey.';
+          bookButton.textContent = button.dataset.title === 'Dhaba' ? 'Pre-order food' : 'Explore option';
+          bookButton.disabled = false;
+          sheet.classList.add('open');
+        }
+        if (button.parentElement.classList.contains('nav')) {
+          button.parentElement.querySelectorAll('button').forEach(item => item.classList.remove('active'));
+          button.classList.add('active');
+        }
+        if (button.parentElement.classList.contains('bottom-nav')) {
+          button.parentElement.querySelectorAll('button').forEach(item => item.classList.remove('active'));
+          button.classList.add('active');
+        }
       });
     });
     document.getElementById('languageButton').addEventListener('click', event => {
       event.currentTarget.textContent = event.currentTarget.textContent === 'MR' ? 'EN' : 'MR';
+    });
+    const themeButton = document.getElementById('themeButton');
+    themeButton.setAttribute('aria-label', 'Switch to light glass mode');
+    themeButton.addEventListener('click', event => {
+      const isLight = document.body.classList.toggle('light-glass');
+      event.currentTarget.textContent = isLight ? '☀' : '◐';
+      event.currentTarget.setAttribute('title', isLight ? 'Switch to dark glass mode' : 'Switch to light glass mode');
+      event.currentTarget.setAttribute('aria-label', event.currentTarget.title);
     });
     document.getElementById('sosButton').addEventListener('click', () => alert('Emergency assistance: calling Maharashtra Police 112'));
   </script>

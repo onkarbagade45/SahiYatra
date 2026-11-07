@@ -1,1434 +1,479 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>SahiYatra — One App for the Whole Trip (Auto + Bus + Train)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SahiYatra — Liquid Glass Transit</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', '"Noto Sans Devanagari"', 'sans-serif'],
-            mr: ['"Noto Sans Devanagari"', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              800: '#1e40af',
-              900: '#1e3a8a',
-            },
-            saffron: {
-              DEFAULT: '#EA580C',
-              light: '#FB923C',
-              dark: '#C2410C',
-            }
-          },
-          boxShadow: {
-            'soft': '0 8px 30px rgba(0, 0, 0, 0.06)',
-            'soft-dark': '0 10px 30px -5px rgba(0, 0, 0, 0.4)',
-            'glow-blue': '0 0 24px rgba(37, 99, 235, 0.35)',
-            'glow-orange': '0 0 24px rgba(234, 88, 12, 0.35)'
-          }
-        }
-      }
-    };
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@500;700&display=swap" rel="stylesheet">
   <style>
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 9999px; }
-    .dark ::-webkit-scrollbar-thumb { background: #334155; }
-    
-    /* Smooth animations */
-    @keyframes pulse-subtle {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.85; transform: scale(0.98); }
+    :root {
+      --ink: #fff7f4;
+      --muted: rgba(255, 247, 244, .68);
+      --glass: rgba(255, 196, 184, .13);
+      --glass-strong: rgba(255, 184, 169, .22);
+      --line: rgba(255, 221, 213, .24);
+      --red: #d52b35;
+      --orange: #ff6a4d;
     }
-    .animate-pulse-subtle {
-      animation: pulse-subtle 2.5s ease-in-out infinite;
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Manrope, "Noto Sans Devanagari", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(140deg, rgba(7, 26, 66, 0.88) 0%, rgba(15, 23, 42, 0.92) 55%, rgba(74, 17, 85, 0.86) 100%),
+        url('wallpaper.jpg') center top / cover no-repeat fixed;
+      overflow-x: hidden;
     }
-
-    @keyframes heart-pop {
-      0% { transform: scale(0); opacity: 0; }
-      50% { transform: scale(1.4); opacity: 1; }
-      100% { transform: scale(1); opacity: 0; }
+    body.light-glass {
+      background:
+        linear-gradient(140deg, rgba(219, 234, 254, 0.90) 0%, rgba(237, 233, 254, 0.93) 55%, rgba(250, 232, 255, 0.90) 100%),
+        url('wallpaper.jpg') center top / cover no-repeat fixed;
+      color: #172554;
     }
-    .animate-heart-pop {
-      animation: heart-pop 0.8s ease-out forwards;
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E");
+      opacity: .25;
     }
-
-    @keyframes skeleton-shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
+    button { font: inherit; }
+    .app {
+      width: min(1180px, calc(100% - 32px));
+      min-height: calc(100vh - 32px);
+      margin: 16px auto;
+      display: grid;
+      grid-template-columns: 210px minmax(0, 1fr);
+      border: 1px solid var(--line);
+      border-radius: 36px;
+      overflow: hidden;
+      background: rgba(25, 31, 112, .38);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 30px 100px rgba(18, 0, 2, .5), inset 0 1px 0 rgba(255,255,255,.12);
     }
-    .skeleton-box {
-      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-      background-size: 200% 100%;
-      animation: skeleton-shimmer 1.5s infinite;
+    .light-glass .app {
+      --ink: #172554;
+      --muted: rgba(30, 41, 59, .68);
+      --glass: rgba(255, 255, 255, .30);
+      --glass-strong: rgba(255, 255, 255, .48);
+      --line: rgba(255, 255, 255, .65);
+      background: rgba(255, 255, 255, .32);
+      box-shadow: 0 30px 100px rgba(67, 56, 202, .18), inset 0 1px 0 rgba(255,255,255,.78);
     }
-    .dark .skeleton-box {
-      background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
-      background-size: 200% 100%;
-      animation: skeleton-shimmer 1.5s infinite;
+    .sidebar {
+      padding: 24px 18px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 255, 255, .055);
+      display: flex;
+      flex-direction: column;
     }
-
-    /* Laser scan effect for digital ticket */
-    @keyframes laser-sweep {
-      0% { top: 6%; opacity: 0.9; }
-      50% { opacity: 1; filter: drop-shadow(0 0 8px #3b82f6); }
-      100% { top: 92%; opacity: 0.9; }
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 34px; }
+    .brand-mark {
+      width: 42px; height: 42px; border-radius: 14px;
+      display: grid; place-items: center;
+      background: linear-gradient(145deg, rgba(255,255,255,.34), rgba(255,255,255,.08));
+      border: 1px solid var(--line);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 9px 20px rgba(45,0,4,.25);
     }
-    .animate-laser {
-      animation: laser-sweep 2.2s ease-in-out infinite alternate;
+    .brand strong { font-size: 17px; letter-spacing: -.4px; }
+    .brand span { display: block; font-size: 9px; color: var(--muted); margin-top: 2px; }
+    .nav { display: grid; gap: 7px; }
+    .nav button {
+      border: 0; color: var(--muted); background: transparent;
+      min-height: 44px; border-radius: 14px; padding: 0 12px;
+      text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px;
+      transition: .18s ease;
     }
-
-    /* Steam animation for Highway Dhaba */
-    @keyframes steam-rise {
-      0% { transform: translateY(0) scaleX(1); opacity: 0; }
-      40% { opacity: 0.7; }
-      100% { transform: translateY(-12px) scaleX(1.3); opacity: 0; }
+    .nav button.active {
+      color: white; background: var(--glass-strong);
+      border: 1px solid var(--line);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.16);
     }
-    .animate-steam {
-      animation: steam-rise 2s ease-out infinite;
+    .nav button:hover { color: white; transform: translateX(2px); }
+    .side-status {
+      margin-top: auto; border-radius: 18px; padding: 14px;
+      background: linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
+      border: 1px solid var(--line);
     }
-
-    /* Hide scrollbars for story carousel */
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .side-status small { color: var(--muted); }
+    .side-status strong { display: block; margin-top: 8px; font-size: 13px; }
+    main { min-width: 0; padding: 18px 22px 24px; }
+    .topbar { height: 54px; display: flex; align-items: center; justify-content: space-between; }
+    .search {
+      width: 330px; height: 42px; border-radius: 14px;
+      border: 1px solid var(--line); background: rgba(255,255,255,.09);
+      display: flex; align-items: center; gap: 10px; padding: 0 13px;
+      color: var(--muted); backdrop-filter: blur(12px);
+    }
+    .search input { flex: 1; min-width: 0; border: 0; outline: 0; color: white; background: transparent; }
+    .search input::placeholder { color: rgba(255,255,255,.5); }
+    .controls { display: flex; gap: 8px; }
+    .icon-button {
+      height: 42px; min-width: 42px; border-radius: 14px;
+      border: 1px solid var(--line); color: white;
+      background: rgba(255,255,255,.09); cursor: pointer;
+      display: grid; place-items: center;
+    }
+    .sos {
+      padding: 0 14px; color: white; border: 1px solid rgba(255,255,255,.32);
+      background: linear-gradient(135deg, #38bdf8, #d946ef);
+      box-shadow: 0 10px 24px rgba(217, 70, 239, .28);
+      font-weight: 800; font-size: 12px; letter-spacing: .2px;
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(260px, .55fr);
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .glass {
+      border: 1px solid var(--line);
+      background: linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,.065));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 18px 44px rgba(50,0,5,.18);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+    }
+    .hero {
+      min-height: 240px; border-radius: 28px; padding: 26px;
+      display: grid; grid-template-columns: 1fr 180px; gap: 18px;
+      position: relative; overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(7, 19, 48, 0.92) 0%, rgba(7, 26, 66, 0.80) 50%, rgba(15, 23, 42, 0.40) 100%),
+        url('wallpaper.jpg') right center / cover no-repeat;
+      border: 1px solid var(--line);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+    .light-glass .hero {
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.82) 52%, rgba(255, 255, 255, 0.40) 100%),
+        url('wallpaper.jpg') right center / cover no-repeat;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 20px 50px rgba(67, 56, 202, 0.15);
+    }
+    .hero::after {
+      content: ""; position: absolute; width: 220px; height: 220px;
+      right: -65px; bottom: -105px; border-radius: 50%;
+      border: 34px solid rgba(255, 169, 153, .09);
+      box-shadow: inset 0 0 30px rgba(255,255,255,.08);
+    }
+    .eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 1.8px; color: rgba(255,255,255,.58); }
+    .hero h1 { margin: 12px 0 8px; font-size: clamp(32px, 4vw, 54px); line-height: .96; letter-spacing: -3px; }
+    .hero h1 em { display: block; font-family: Georgia, serif; font-weight: 400; color: #ffc4b8; }
+    .route-line { margin-top: 18px; display: flex; align-items: center; gap: 10px; font-size: 12px; }
+    .route-line .dot { width: 7px; height: 7px; border-radius: 50%; background: white; box-shadow: 0 0 14px white; }
+    .route-line .path { width: 74px; height: 1px; background: linear-gradient(90deg, white, transparent); }
+    .weather {
+      border-radius: 22px; padding: 16px; z-index: 1;
+      background: rgba(70, 5, 10, .28); border: 1px solid var(--line);
+    }
+    .weather strong { font-size: 38px; letter-spacing: -2px; }
+    .weather p { margin: 4px 0 14px; font-size: 11px; color: var(--muted); }
+    .weather-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+    .weather-grid span { font-size: 9px; text-align: center; color: var(--muted); }
+    .weather-grid b { display: block; font-size: 10px; color: white; margin-top: 4px; }
+    .side-column { display: grid; gap: 14px; }
+    .reminders { border-radius: 28px; padding: 18px; min-height: 112px; }
+    .reminders-head { display: flex; justify-content: space-between; align-items: center; }
+    .reminders h3 { margin: 0; font-size: 14px; }
+    .reminders .count { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.12); font-size: 10px; }
+    .reminder { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); margin-top: 12px; }
+    .reminder .ring { width: 12px; height: 12px; border: 1px solid rgba(255,255,255,.58); border-radius: 50%; }
+    .quick-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .quick {
+      min-height: 94px; border-radius: 22px; padding: 14px;
+      border: 1px solid var(--line); background: rgba(255,255,255,.09);
+      cursor: pointer; text-align: left; color: white;
+      backdrop-filter: blur(18px);
+    }
+    .quick b { display: block; margin-top: 18px; font-size: 12px; }
+    .quick span { font-size: 9px; color: var(--muted); }
+    .quick.active { background: rgba(255,255,255,.23); box-shadow: inset 0 1px 0 rgba(255,255,255,.22); }
+    .stories { margin-top: 14px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .story {
+      height: 90px; border-radius: 22px; border: 1px solid var(--line);
+      background: rgba(255,255,255,.09); color: white; cursor: pointer;
+      display: grid; place-items: center; text-align: center; padding: 9px;
+    }
+    .story:hover { background: rgba(255,255,255,.17); }
+    .story-icon { width: 38px; height: 38px; border-radius: 13px; display: grid; place-items: center; background: rgba(255,255,255,.12); }
+    .story strong { display: block; font-size: 11px; }
+    .story small { display: block; color: var(--muted); margin-top: 2px; font-size: 8px; }
+    .feed { margin-top: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .trip-card {
+      min-height: 150px; border-radius: 24px; padding: 16px; cursor: pointer;
+      border: 1px solid var(--line); background: rgba(255,255,255,.085);
+      transition: .18s ease; position: relative; overflow: hidden;
+    }
+    .trip-card:hover { transform: translateY(-3px); background: rgba(255,255,255,.14); }
+    .trip-card.featured { grid-column: span 2; background: linear-gradient(135deg, rgba(255,255,255,.19), rgba(255,255,255,.07)); }
+    .trip-card .badge { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; padding: 6px 8px; border-radius: 999px; background: rgba(255,255,255,.12); }
+    .trip-card h3 { margin: 18px 0 5px; font-size: 17px; letter-spacing: -.5px; }
+    .trip-card p { margin: 0; color: var(--muted); font-size: 10px; }
+    .trip-card .fare { position: absolute; right: 16px; bottom: 15px; font-size: 22px; font-weight: 800; }
+    .trip-card .legs { display: flex; gap: 8px; margin-top: 14px; font-size: 9px; color: var(--muted); }
+    .bottom-nav { display: none; }
+    .sheet {
+      position: fixed; inset: 0; z-index: 20; background: rgba(16,0,2,.58);
+      display: none; place-items: end center; padding: 20px;
+      backdrop-filter: blur(12px);
+    }
+    .sheet.open { display: grid; }
+    .sheet-panel { width: min(500px, 100%); border-radius: 28px; border: 1px solid var(--line); padding: 22px; background: rgba(98, 18, 26, .88); box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+    .sheet-panel h2 { margin: 8px 0; }
+    .sheet-panel p { color: var(--muted); font-size: 12px; }
+    .sheet-actions { display: grid; grid-template-columns: 1fr 100px; gap: 8px; margin-top: 18px; }
+    .sheet-actions button { height: 48px; border-radius: 15px; border: 1px solid var(--line); cursor: pointer; }
+    .book { background: white; color: #721018; font-weight: 800; }
+    .close { background: rgba(255,255,255,.09); color: white; }
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; width: 100%; min-height: 100vh; margin: 0; border-radius: 0; border-left: 0; border-right: 0; }
+      .sidebar { display: none; }
+      main { padding-bottom: 88px; }
+      .search { width: min(280px, 55vw); }
+      .dashboard { grid-template-columns: 1fr; }
+      .side-column { grid-template-columns: 1fr 1fr; }
+      .stories { overflow-x: auto; display: flex; }
+      .story { min-width: 115px; }
+      .feed { grid-template-columns: 1fr 1fr; }
+      .trip-card.featured { grid-column: span 2; }
+      .bottom-nav {
+        display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; z-index: 10;
+        left: 12px; right: 12px; bottom: 10px; height: 64px; border-radius: 22px;
+        border: 1px solid var(--line); background: rgba(91, 14, 21, .82);
+        backdrop-filter: blur(20px); box-shadow: 0 15px 40px rgba(0,0,0,.3);
+      }
+      .bottom-nav button { border: 0; color: var(--muted); background: transparent; font-size: 9px; }
+      .bottom-nav button.active { color: white; }
+    }
+    @media (max-width: 560px) {
+      main { padding: 10px 12px 84px; }
+      .topbar { height: 48px; }
+      .search { width: 44px; padding: 0; justify-content: center; }
+      .search input { display: none; }
+      .controls { gap: 5px; }
+      .icon-button { height: 40px; min-width: 40px; }
+      .sos { min-width: 58px; padding: 0 9px; font-size: 10px; }
+      .hero { min-height: 240px; grid-template-columns: 1fr; border-radius: 24px; padding: 20px; }
+      .hero h1 { font-size: 40px; }
+      .weather { display: none; }
+      .side-column { grid-template-columns: 1fr; }
+      .reminders { min-height: 96px; }
+      .quick-grid { grid-template-columns: repeat(3, 1fr); }
+      .quick { min-height: 82px; padding: 11px; }
+      .feed { grid-template-columns: 1fr; }
+      .trip-card.featured { grid-column: span 1; }
+    }
   </style>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body class="bg-slate-50 text-slate-900 dark:bg-[#0B1120] dark:text-slate-100 antialiased transition-colors duration-200">
-  <div id="root"></div>
-
-  <script type="text/babel">
-    const { useState, useEffect, useMemo, useRef } = React;
-
-    // SVG Icons Helper
-    const Icon = ({ name, size = 18, className = "" }) => {
-      const icons = {
-        home: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
-        search: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
-        ticket: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>,
-        shield: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>,
-        user: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
-        bus: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg>,
-        car: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>,
-        train: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="16" height="16" x="4" y="3" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></svg>,
-        heart: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>,
-        heartFilled: <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>,
-        clock: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
-        mapPin: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>,
-        arrowRight: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
-        alert: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>,
-        check: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12"/></svg>,
-        x: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
-        sun: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
-        moon: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>,
-        utensils: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M12 2v20"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>,
-        sparkles: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>,
-        zap: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
-        phone: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
-        volume: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>,
-        qr: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
-      };
-      return icons[name] || null;
-    };
-
-    // Pre-seeded trips matching the core Maharashtra transit corridors
-    const SAMPLE_TRIP_CARDS = [
-      {
-        id: 'plan-cheapest',
-        type: 'cheapest',
-        badge: 'Cheapest',
-        badgeMr: 'सर्वात स्वस्त',
-        title: 'Solapur to Pune (Via Hadapsar)',
-        titleMr: 'सोलापूर ते पुणे (हडपसर मार्गे)',
-        price: 420,
-        originalPrice: 530,
-        duration: '5h 40m',
-        departureTime: '06:30 AM',
-        arrivalTime: '12:10 PM',
-        zeroSurge: true,
-        steps: [
-          { mode: 'auto', name: 'Auto MH 13 AB 1234', fare: 60, time: '20m', otp: '4821', note: 'Doorstep pickup to Solapur Stand' },
-          { mode: 'bus', name: 'MSRTC Ordinary Express', fare: 280, time: '4h 45m', seat: 'Seat 14', note: 'Solapur Stand ➔ Swargate Stand' },
-          { mode: 'auto', name: 'Connecting Auto', fare: 80, time: '35m', otp: '6104', note: 'Held at Swargate Bay #2' }
-        ],
-        bufferAlert: 'Standard 25m transit buffer included',
-        dhabaStop: 'Indapur Hotel Jagdamba (25m halt)'
-      },
-      {
-        id: 'plan-fastest',
-        type: 'fastest',
-        badge: 'Fastest',
-        badgeMr: 'सर्वात वेगवान',
-        title: 'Solapur to Pune (Direct Express Corridor)',
-        titleMr: 'सोलापूर ते पुणे (जलद महामार्ग कॉरिडॉर)',
-        price: 610,
-        originalPrice: 740,
-        duration: '4h 30m',
-        departureTime: '07:15 AM',
-        arrivalTime: '11:45 AM',
-        zeroSurge: true,
-        steps: [
-          { mode: 'auto', name: 'Express Auto MH 13 W 8821', fare: 60, time: '15m', otp: '4821', note: 'Priority door pickup' },
-          { mode: 'bus', name: 'MSRTC Shivshahi AC Express', fare: 470, time: '3h 45m', seat: 'Seat 08 (Pushback)', note: 'Direct non-stop bypass' },
-          { mode: 'auto', name: 'Pre-dispatched Auto', fare: 80, time: '30m', otp: '7721', note: 'Reserved waiting at Pune Station' }
-        ],
-        bufferAlert: 'Intelligent real-time traffic buffer active',
-        dhabaStop: 'Express Coffee & Quick Snack Stop'
-      },
-      {
-        id: 'plan-comfort',
-        type: 'comfort',
-        badge: 'Comfort',
-        badgeMr: 'आरामदायी',
-        title: 'Solapur to Pune (AC Sleeper + Guaranteed Auto)',
-        titleMr: 'सोलापूर ते पुणे (एसी स्लीपर + गॅरंटीड ऑटो)',
-        price: 780,
-        originalPrice: 950,
-        duration: '4h 50m',
-        departureTime: '08:00 AM',
-        arrivalTime: '12:50 PM',
-        zeroSurge: true,
-        steps: [
-          { mode: 'auto', name: 'Premium EV Auto MH 13 EX 55', fare: 70, time: '20m', otp: '4821', note: 'Quiet ride with luggage assist' },
-          { mode: 'bus', name: 'MSRTC Shivneri AC Sleeper', fare: 620, time: '4h 00m', seat: 'Berth U-4 (AC Sleeper)', note: 'USB charger, water bottle provided' },
-          { mode: 'auto', name: 'Executive Auto', fare: 90, time: '30m', otp: '8832', note: 'Air-cooled waiting at destination' }
-        ],
-        bufferAlert: 'VIP 40m lounge & transfer buffer',
-        dhabaStop: 'Audited Highway Oasis Restaurant'
-      },
-      {
-        id: 'plan-pandharpur',
-        type: 'pilgrim',
-        badge: 'Devotee Special',
-        badgeMr: 'वारकरी स्पेशल',
-        title: 'Solapur to Pandharpur Temple Corridor',
-        titleMr: 'सोलापूर ते पंढरपूर विठ्ठल मंदिर कॉरिडॉर',
-        price: 340,
-        originalPrice: 420,
-        duration: '2h 15m',
-        departureTime: '05:30 AM',
-        arrivalTime: '07:45 AM',
-        zeroSurge: true,
-        steps: [
-          { mode: 'auto', name: 'Shared Auto MH 13 DF 4312', fare: 40, time: '15m', otp: '3311', note: 'Drop directly at Pandharpur Stand' },
-          { mode: 'bus', name: 'Vitthal Darshan Fast Shuttle', fare: 240, time: '1h 30m', seat: 'Seat 19', note: 'Dedicated pilgrim route' },
-          { mode: 'auto', name: 'E-Cart to Namdev Payatha', fare: 60, time: '30m', otp: '9012', note: 'Temple perimeter pedestrian drop' }
-        ],
-        bufferAlert: 'Temple queue priority guidance sync',
-        dhabaStop: 'Pure Satvik Upvas Phalahar Center'
-      }
-    ];
-
-    // Stories for the horizontal Instagram-style story row
-    const STORIES_CONFIG = [
-      {
-        id: 'story-cheapest',
-        title: 'Cheapest',
-        titleMr: 'सर्वात स्वस्त',
-        subtitle: '₹420 Locked',
-        icon: 'zap',
-        gradient: 'from-amber-500 via-orange-500 to-rose-500',
-        content: {
-          headline: 'Guaranteed Lowest Rate in Maharashtra',
-          headlineMr: 'महाराष्ट्रातील सर्वात खात्रीशीर कमी दर',
-          desc: 'Auto (₹60) + MSRTC Bus (₹280) + Auto (₹80) = ₹420. No midnight surge, zero hidden platform charges.',
-          actionText: 'Show Cheapest Feed'
-        }
-      },
-      {
-        id: 'story-fastest',
-        title: 'Fastest',
-        titleMr: 'वेगवान',
-        subtitle: '4h 30m Direct',
-        icon: 'sparkles',
-        gradient: 'from-blue-500 via-indigo-600 to-violet-600',
-        content: {
-          headline: 'Non-Stop Highway Express',
-          headlineMr: 'नॉन-स्टॉप हायवे एक्सप्रेस कॉरिडॉर',
-          desc: 'Saves 70 mins compared to normal routing by bypassing local town stops with green corridor auto sync.',
-          actionText: 'Show Fastest Feed'
-        }
-      },
-      {
-        id: 'story-comfort',
-        title: 'Comfort',
-        titleMr: 'आरामदायी',
-        subtitle: 'AC Sleeper',
-        icon: 'bus',
-        gradient: 'from-emerald-400 via-teal-500 to-cyan-600',
-        content: {
-          headline: 'Luxury AC Sleeper + Doorstep EV Auto',
-          headlineMr: 'आरामदायी एसी स्लीपर + ईव्ही ऑटो',
-          desc: 'Reclining pushback or flat sleeper berth with complimentary sealed water and guaranteed quiet transfer.',
-          actionText: 'Show Comfort Feed'
-        }
-      },
-      {
-        id: 'story-food',
-        title: 'Food Stops',
-        titleMr: 'धाबा जेवण',
-        subtitle: '4.5★ Audited',
-        icon: 'utensils',
-        gradient: 'from-red-500 via-orange-500 to-yellow-500',
-        content: {
-          headline: 'Highway Dhaba Pre-Order at Hotel Jagdamba (Indapur)',
-          headlineMr: 'हॉटेल जगदंब (इंदापूर) - प्रवासात गरमागरम जेवण',
-          desc: 'Fresh Maharashtrian Veg Thali (₹90), Poha (₹30), and Misal Pav (₹50) packed and piping hot the moment the bus pulls in.',
-          actionText: 'Pre-Order Food'
-        }
-      },
-      {
-        id: 'story-festival',
-        title: 'Festival Rush',
-        titleMr: 'सण गर्दी नियंत्रण',
-        subtitle: 'Zero Surge',
-        icon: 'ticket',
-        gradient: 'from-fuchsia-500 via-pink-600 to-rose-500',
-        content: {
-          headline: 'Diwali & Pandharpur Standby Fleet Active',
-          headlineMr: 'दिवाळी व वारी अतिरिक्त बसेस उपलब्ध',
-          desc: 'Private bus operators charge 3x surge. SahiYatra locks standard MSRTC rates and auto fares forever.',
-          actionText: 'View Fleet Allocation'
-        }
-      },
-      {
-        id: 'story-safety',
-        title: 'Teen Safe',
-        titleMr: 'सुरक्षित प्रवास',
-        subtitle: 'Parent PIN',
-        icon: 'shield',
-        gradient: 'from-sky-400 via-blue-600 to-indigo-700',
-        content: {
-          headline: 'Teen Safe Ride Mode (Ages 16–18)',
-          headlineMr: '१६ ते १८ वयोगटातील मुलांसाठी विशेष सुरक्षा',
-          desc: 'Real-time parent tracking badge, police-linked dispatch 112, verified drivers, and mandatory boarding PIN 7302.',
-          actionText: 'Check Safe Mode'
-        }
-      }
-    ];
-
-    // Dhaba Menu items
-    const DHABA_ITEMS = [
-      { id: 'thali', name: 'Special Maharashtrian Veg Thali', nameMr: 'महाराष्ट्रीयन स्पेशल व्हेज थाळी', price: 90, prep: 'Ready in 2 min', tag: 'Best Seller', hasSteam: true, desc: '3 Chapati, Dal Tadka, Sukhi Bhaji, Rice, Pickle & Gulab Jamun.' },
-      { id: 'misal', name: 'Puneri Misal Pav (2 Pav + Farsan)', nameMr: 'झणझणीत मिसळ पाव', price: 50, prep: 'Hot in 3 min', tag: 'Spicy', hasSteam: true, desc: 'Sprouted moth beans fiery tarri rassa with crisp Kolhapuri farsan.' },
-      { id: 'poha', name: 'Kanda Poha with Peanuts & Lemon', nameMr: 'गरम कांदा पोहे', price: 30, prep: 'Instant 1 min', tag: 'Fresh', hasSteam: true, desc: 'Freshly steamed flattened rice with roasted peanuts, mustard & lemon.' },
-      { id: 'chai', name: 'Special Highway Masala Cutting Chai', nameMr: 'हायवे स्पेशल कटिंग चहा', price: 10, prep: 'Fresh Brewed', tag: 'Popular', hasSteam: true, desc: 'Fresh ginger & cardamom infused hot tea in traditional glass.' }
-    ];
-
-    function App() {
-      // Theme State
-      const [isDark, setIsDark] = useState(() => {
-        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      });
-
-      // Language State: 'en' | 'mr'
-      const [lang, setLang] = useState('en');
-
-      // Active Main Tab: 'home' | 'search' | 'trips' | 'safety' | 'profile'
-      const [activeTab, setActiveTab] = useState('home');
-
-      // Selected Trip for Bottom Sheet
-      const [selectedTrip, setSelectedTrip] = useState(null);
-
-      // Selected Story for Instagram-style Modal
-      const [activeStory, setActiveStory] = useState(null);
-
-      // Loading state (triggers skeleton preview)
-      const [isLoading, setIsLoading] = useState(false);
-
-      // Favorite Trips (Heart icon & Double Tap)
-      const [favorites, setFavorites] = useState(new Set(['plan-cheapest']));
-      const [poppingHeartTripId, setPoppingHeartTripId] = useState(null);
-
-      // Booking State
-      const [confirmedBooking, setConfirmedBooking] = useState(null);
-
-      // SOS Emergency Modal State
-      const [showSosModal, setShowSosModal] = useState(false);
-      const [sosCountdown, setSosCountdown] = useState(null);
-
-      // Dhaba Cart state
-      const [dhabaCart, setDhabaCart] = useState({});
-      const [dhabaOrderedToken, setDhabaOrderedToken] = useState(null);
-
-      // Filter state
-      const [activeFilter, setActiveFilter] = useState('all');
-
-      // Delay Simulation
-      const [delayActive, setDelayActive] = useState(false);
-
-      // Teen Safe Mode
-      const [teenSafeEnabled, setTeenSafeEnabled] = useState(true);
-
-      // Synchronize dark mode class on HTML root element
-      useEffect(() => {
-        if (isDark) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-      }, [isDark]);
-
-      // Trigger a brief skeleton loading effect when changing filter or searching
-      const triggerReload = (filterName) => {
-        setActiveFilter(filterName);
-        setIsLoading(true);
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 550);
-      };
-
-      // Double-tap or heart click handler
-      const toggleFavorite = (tripId, e) => {
-        if (e) e.stopPropagation();
-        setFavorites(prev => {
-          const next = new Set(prev);
-          if (next.has(tripId)) {
-            next.delete(tripId);
-          } else {
-            next.add(tripId);
-            setPoppingHeartTripId(tripId);
-            setTimeout(() => setPoppingHeartTripId(null), 850);
-          }
-          return next;
-        });
-      };
-
-      // Double click / tap detection on card
-      const lastTapRef = useRef({});
-      const handleCardTap = (trip) => {
-        const now = Date.now();
-        const last = lastTapRef.current[trip.id] || 0;
-        if (now - last < 300) {
-          // Double tap detected!
-          toggleFavorite(trip.id);
-        } else {
-          // Single tap opens bottom sheet
-          setSelectedTrip(trip);
-        }
-        lastTapRef.current[trip.id] = now;
-      };
-
-      // Text-To-Speech for Marathi Driver Card
-      const speakMarathi = (text) => {
-        if ('speechSynthesis' in window) {
-          window.speechSynthesis.cancel();
-          const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = 'mr-IN';
-          utterance.rate = 0.9;
-          window.speechSynthesis.speak(utterance);
-        } else {
-          alert("Audio voice output: " + text);
-        }
-      };
-
-      // Filtered trips
-      const displayedTrips = useMemo(() => {
-        if (activeFilter === 'all') return SAMPLE_TRIP_CARDS;
-        return SAMPLE_TRIP_CARDS.filter(t => t.type === activeFilter);
-      }, [activeFilter]);
-
-      // Complete checkout and generate confirmed ticket pass
-      const handleConfirmBooking = (trip) => {
-        const ticketNumber = "SY-" + Math.floor(100000 + Math.random() * 900000);
-        const booking = {
-          ticketId: ticketNumber,
-          trip,
-          bookedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          rideOtp: '4821',
-          boardingPin: '7302',
-          autoPlate: 'MH 13 AB 1234',
-          driverName: 'Ramesh Jadhav',
-          busPlate: 'MH 13 CU 4491',
-          busPlatform: 'Bay #4 (Solapur Old ST Stand)',
-          seat: 'Seat 14 (Window)',
-          lastAutoStatus: 'Auto Reserved — held on arrival at Pune Swargate'
-        };
-        setConfirmedBooking(booking);
-        setSelectedTrip(null);
-        setActiveTab('trips');
-      };
-
-      return (
-        <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 dark:bg-[#070D19] transition-colors">
-          
-          {/* =========================================================================
-              1. DESKTOP SIDEBAR (Visible on laptop/desktop screens >= 768px)
-             ========================================================================= */}
-          <aside className="hidden md:flex flex-col w-64 border-r border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#0C1425] p-5 shrink-0 sticky top-0 h-screen select-none">
-            {/* Brand Logo */}
-            <div className="flex items-center gap-3 pb-6 border-b border-slate-100 dark:border-slate-800">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-                <Icon name="bus" size={22} />
-              </div>
-              <div>
-                <h1 className="font-extrabold text-lg tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
-                  SahiYatra
-                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                </h1>
-                <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                  {lang === 'mr' ? 'एक तिकीट, अखंड प्रवास' : 'One App for the Whole Trip'}
-                </p>
-              </div>
-            </div>
-
-            {/* Desktop Navigation Links */}
-            <nav className="flex-1 py-6 space-y-1.5">
-              {[
-                { id: 'home', label: 'Home Feed', labelMr: 'मुख्य फीड', icon: 'home' },
-                { id: 'search', label: 'Route Planner', labelMr: 'मार्ग शोध', icon: 'search' },
-                { id: 'trips', label: 'My Bookings', labelMr: 'माझे तिकीट', icon: 'ticket' },
-                { id: 'safety', label: 'Teen Safe Ride', labelMr: 'सुरक्षा कक्ष', icon: 'shield' },
-                { id: 'profile', label: 'Driver & Account', labelMr: 'चालक / प्रोफाईल', icon: 'user' },
-              ].map((item) => {
-                const isActive = activeTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setActiveTab(item.id);
-                      if (item.id === 'home') triggerReload('all');
-                    }}
-                    className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${
-                      isActive 
-                        ? 'bg-blue-50 text-blue-600 dark:bg-blue-600/15 dark:text-blue-400 shadow-sm'
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                    }`}
-                  >
-                    <Icon name={item.icon} size={19} className={isActive ? 'text-blue-600 dark:text-blue-400' : ''} />
-                    <span>{lang === 'mr' ? item.labelMr : item.label}</span>
-                  </button>
-                );
-              })}
-            </nav>
-
-            {/* Zero Surge Policy Card in Sidebar */}
-            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 mb-4">
-              <div className="flex items-center gap-2 mb-1.5">
-                <Icon name="zap" size={15} className="text-amber-500" />
-                <span className="text-xs font-bold uppercase tracking-wider">Zero Surge Lock</span>
-              </div>
-              <p className="text-[12px] leading-relaxed opacity-90">
-                Fare stays locked regardless of Diwali rush or midnight rains.
-              </p>
-            </div>
-
-            {/* Desktop Language & Dark Mode Toggles */}
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
-              <button
-                onClick={() => setLang(l => l === 'en' ? 'mr' : 'en')}
-                className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 font-bold text-slate-700 dark:text-slate-300 hover:border-blue-500 transition"
-              >
-                {lang === 'en' ? 'मराठी Switch' : 'English'}
-              </button>
-              <button
-                onClick={() => setIsDark(d => !d)}
-                className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:text-amber-500 transition"
-                title="Toggle Theme"
-              >
-                <Icon name={isDark ? "sun" : "moon"} size={17} />
-              </button>
-            </div>
-          </aside>
-
-
-          {/* =========================================================================
-              2. MAIN APP CONTENT CONTAINER
-             ========================================================================= */}
-          <main className="flex-1 flex flex-col min-w-0 pb-24 md:pb-8">
-
-            {/* -------------------------------------------------------------
-                TOP BAR (Logo, Language switch, Dark Mode, Persistent SOS)
-               ------------------------------------------------------------- */}
-            <header className="sticky top-0 z-30 bg-white/90 dark:bg-[#070D19]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 px-4 sm:px-6 py-3.5 flex items-center justify-between">
-              
-              {/* Mobile Brand Title */}
-              <div className="flex items-center gap-2.5 md:hidden">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-sm">
-                  <Icon name="bus" size={19} />
-                </div>
-                <div>
-                  <h1 className="font-extrabold text-base tracking-tight text-slate-900 dark:text-white flex items-center gap-1">
-                    SahiYatra
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                  </h1>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
-                    {lang === 'mr' ? 'सोलापूर ➔ पुणे' : 'Solapur ➔ Pune'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Desktop Header Greeting */}
-              <div className="hidden md:flex items-center gap-3">
-                <div className="px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 text-xs font-bold flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                  <span>Solapur-Pune NH65 Transit Corridor Active</span>
-                </div>
-              </div>
-
-              {/* Right Controls: Language, Theme, and CRITICAL ALWAYS-VISIBLE SOS BUTTON */}
-              <div className="flex items-center gap-2 sm:gap-3">
-                
-                {/* Language Switch */}
-                <button
-                  onClick={() => setLang(l => l === 'en' ? 'mr' : 'en')}
-                  className="px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 hover:border-blue-500 transition"
-                  title="Switch Language"
-                >
-                  {lang === 'en' ? 'मराठी' : 'ENG'}
-                </button>
-
-                {/* Dark Mode Button */}
-                <button
-                  onClick={() => setIsDark(d => !d)}
-                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-amber-500 transition"
-                  title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-                >
-                  <Icon name={isDark ? "sun" : "moon"} size={16} />
-                </button>
-
-                {/* ALWAYS VISIBLE EMERGENCY SOS BUTTON (Never hidden behind a gesture) */}
-                <button
-                  onClick={() => setShowSosModal(true)}
-                  className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-extrabold text-xs shadow-md shadow-red-500/25 flex items-center gap-1.5 active:scale-95 transition"
-                >
-                  <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
-                  <span>SOS 112</span>
-                </button>
-              </div>
-            </header>
-
-
-            {/* -------------------------------------------------------------
-                ACTIVE NOTIFICATION BANNER (Delay / Intelligence Alert)
-               ------------------------------------------------------------- */}
-            {delayActive && (
-              <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-2.5 text-xs text-amber-800 dark:text-amber-300 flex items-center justify-between">
-                <div className="flex items-center gap-2 font-semibold">
-                  <Icon name="alert" size={16} className="text-amber-600 dark:text-amber-400 shrink-0" />
-                  <span>
-                    {lang === 'mr' 
-                      ? '⚠️ +१५ मिनिटे ट्रॅफिक विलंब: पुढील कनेक्टिंग ऑटो स्वारगेट बे २ वर रोखून धरली आहे.'
-                      : '⚠️ +15 min delay detected on NH65: Intelligent buffer activated, next auto held at Swargate Bay #2.'}
-                  </span>
-                </div>
-                <button
-                  onClick={() => setDelayActive(false)}
-                  className="text-amber-600 dark:text-amber-400 hover:underline font-bold text-[11px]"
-                >
-                  Dismiss
-                </button>
-              </div>
-            )}
-
-
-            {/* -------------------------------------------------------------
-                STORY-STYLE ROW (Instagram-style circular/pill avatar feed)
-               ------------------------------------------------------------- */}
-            <section className="pt-4 px-4 sm:px-6">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                  {lang === 'mr' ? 'जलद पर्याय आणि हायलाइट्स' : 'Trip Stories & Quick Highlights'}
-                </span>
-                <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400">
-                  Swipe ➔
-                </span>
-              </div>
-
-              {/* Horizontal Scroll Carousel */}
-              <div className="flex items-center gap-3.5 overflow-x-auto no-scrollbar pb-2.5 pt-1">
-                {STORIES_CONFIG.map((story) => (
-                  <button
-                    key={story.id}
-                    onClick={() => setActiveStory(story)}
-                    className="flex flex-col items-center shrink-0 group focus:outline-none"
-                  >
-                    {/* Glowing Story Ring */}
-                    <div className={`w-16 h-16 sm:w-18 sm:h-18 p-[2.5px] rounded-full bg-gradient-to-tr ${story.gradient} shadow-sm group-hover:scale-105 active:scale-95 transition-transform duration-200`}>
-                      <div className="w-full h-full rounded-full bg-white dark:bg-[#070D19] p-1 flex flex-col items-center justify-center">
-                        <div className="w-full h-full rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-200">
-                          <Icon name={story.icon} size={22} className="group-hover:scale-110 transition-transform" />
-                        </div>
-                      </div>
-                    </div>
-                    {/* Story Title & Badge */}
-                    <span className="text-[12px] font-bold mt-1.5 text-slate-800 dark:text-slate-200 max-w-[70px] truncate text-center">
-                      {lang === 'mr' ? story.titleMr : story.title}
-                    </span>
-                    <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
-                      {story.subtitle}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </section>
-
-
-            {/* -------------------------------------------------------------
-                TAB 1: HOME FEED (Trip Cards with Cost, Time, Steps & Heart)
-               ------------------------------------------------------------- */}
-            {activeTab === 'home' && (
-              <div className="px-4 sm:px-6 pt-3 space-y-4 max-w-4xl">
-                
-                {/* Search / Filter Quick Pills */}
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 text-xs">
-                  <span className="text-slate-500 dark:text-slate-400 font-bold shrink-0 mr-1">
-                    Filter:
-                  </span>
-                  {[
-                    { id: 'all', label: 'All Plans', labelMr: 'सर्व प्लॅन्स' },
-                    { id: 'cheapest', label: 'Cheapest (₹420)', labelMr: 'सर्वात स्वस्त' },
-                    { id: 'fastest', label: 'Fastest (4h 30m)', labelMr: 'सर्वात वेगवान' },
-                    { id: 'comfort', label: 'Comfort (AC Sleeper)', labelMr: 'आरामदायी' },
-                    { id: 'pilgrim', label: 'Pandharpur Temple', labelMr: 'पंढरपूर दर्शन' },
-                  ].map((f) => (
-                    <button
-                      key={f.id}
-                      onClick={() => triggerReload(f.id)}
-                      className={`px-3 py-1.5 rounded-full font-bold whitespace-nowrap transition-all ${
-                        activeFilter === f.id
-                          ? 'bg-blue-600 text-white shadow-sm'
-                          : 'bg-white dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-400'
-                      }`}
-                    >
-                      {lang === 'mr' ? f.labelMr : f.label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Simulated Delay Banner Trigger (Test Feature) */}
-                <div className="flex items-center justify-between p-3 rounded-2xl bg-white dark:bg-[#0C1425] border border-slate-200/90 dark:border-slate-800 text-xs shadow-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span className="font-semibold text-slate-700 dark:text-slate-300">
-                      {lang === 'mr' ? 'स्मार्ट ट्रॅफिक बफर चाचणी:' : 'Test Smart Buffer Engine:'}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => setDelayActive(!delayActive)}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 font-bold text-slate-700 dark:text-slate-300 hover:bg-amber-500 hover:text-white transition"
-                  >
-                    {delayActive ? 'Reset Delay' : 'Simulate +15m Bus Delay'}
-                  </button>
-                </div>
-
-                {/* SKELETON LOADING BOXES (Shown during quick search or filter switches) */}
-                {isLoading ? (
-                  <div className="space-y-4 pt-1">
-                    {[1, 2, 3].map((n) => (
-                      <div key={n} className="rounded-3xl p-5 border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-[#0C1425] shadow-soft dark:shadow-soft-dark space-y-4">
-                        <div className="flex justify-between items-center">
-                          <div className="w-24 h-5 rounded-full skeleton-box"></div>
-                          <div className="w-16 h-7 rounded-xl skeleton-box"></div>
-                        </div>
-                        <div className="w-48 h-5 rounded-lg skeleton-box"></div>
-                        <div className="flex items-center gap-3">
-                          <div className="flex-1 h-12 rounded-2xl skeleton-box"></div>
-                          <div className="flex-1 h-12 rounded-2xl skeleton-box"></div>
-                          <div className="flex-1 h-12 rounded-2xl skeleton-box"></div>
-                        </div>
-                        <div className="w-full h-10 rounded-2xl skeleton-box"></div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  /* TRIP CARDS FEED */
-                  <div className="space-y-4">
-                    {displayedTrips.map((trip) => {
-                      const isLiked = favorites.has(trip.id);
-                      const isPopping = poppingHeartTripId === trip.id;
-
-                      return (
-                        <div
-                          key={trip.id}
-                          onClick={() => handleCardTap(trip)}
-                          className="relative rounded-3xl p-5 sm:p-6 bg-white dark:bg-[#0C1425] border border-slate-200/80 dark:border-slate-800/90 shadow-soft dark:shadow-soft-dark hover:border-blue-500/50 hover:shadow-lg transition-all duration-200 cursor-pointer select-none group"
-                        >
-                          {/* Floating Animated Pop Heart on Double Tap */}
-                          {isPopping && (
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-                              <div className="text-red-500 animate-heart-pop">
-                                <Icon name="heartFilled" size={64} />
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Top Row: Plan Badge, Time, and Heart Icon */}
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-2">
-                              <span className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider ${
-                                trip.type === 'cheapest' ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30' :
-                                trip.type === 'fastest' ? 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30' :
-                                trip.type === 'comfort' ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' :
-                                'bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30'
-                              }`}>
-                                {lang === 'mr' ? trip.badgeMr : trip.badge}
-                              </span>
-
-                              <span className="flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
-                                <Icon name="clock" size={13} />
-                                <span>{trip.duration}</span>
-                              </span>
-                            </div>
-
-                            {/* Heart / Favorite Button */}
-                            <button
-                              onClick={(e) => toggleFavorite(trip.id, e)}
-                              className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition active:scale-90"
-                              title={isLiked ? "Saved to Favorites" : "Save Trip"}
-                            >
-                              <Icon
-                                name={isLiked ? "heartFilled" : "heart"}
-                                size={20}
-                                className={isLiked ? "text-rose-500" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"}
-                              />
-                            </button>
-                          </div>
-
-                          {/* Trip Title & Departure / Arrival */}
-                          <div className="mb-4">
-                            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition">
-                              {lang === 'mr' ? trip.titleMr : trip.title}
-                            </h2>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                              {trip.departureTime} ➔ {trip.arrivalTime} • {trip.dhabaStop}
-                            </p>
-                          </div>
-
-                          {/* Stitched Multi-Modal Steps (Auto -> Bus -> Auto) */}
-                          <div className="grid grid-cols-3 gap-2 p-3 rounded-2xl bg-slate-50 dark:bg-[#070D19]/80 border border-slate-100 dark:border-slate-800/80 mb-4">
-                            {trip.steps.map((st, idx) => (
-                              <div key={idx} className="flex flex-col">
-                                <div className="flex items-center gap-1.5 text-slate-400 text-xs font-semibold">
-                                  <Icon name={st.mode === 'auto' ? 'car' : 'bus'} size={14} className="text-blue-500" />
-                                  <span className="truncate">{st.mode === 'auto' ? 'Auto' : 'Bus'}</span>
-                                  <span className="text-[10px] text-slate-400">({st.time})</span>
-                                </div>
-                                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-1 truncate">
-                                  ₹{st.fare}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Bottom Row: Cost with Zero Surge Guarantee & Action Button */}
-                          <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
-                            <div>
-                              <div className="flex items-baseline gap-2">
-                                <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                                  ₹{trip.price}
-                                </span>
-                                <span className="text-xs line-through text-slate-400">
-                                  ₹{trip.originalPrice}
-                                </span>
-                                <span className="text-[11px] px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold">
-                                  Zero Surge
-                                </span>
-                              </div>
-                              <span className="text-[11px] text-slate-400">All 3 Legs Included</span>
-                            </div>
-
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedTrip(trip);
-                              }}
-                              className="px-4 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm shadow-blue-500/20 transition"
-                            >
-                              <span>{lang === 'mr' ? 'भाडे पहा' : 'View Fare'}</span>
-                              <Icon name="arrowRight" size={14} />
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
-
-
-            {/* -------------------------------------------------------------
-                TAB 2: ROUTE PLANNER / SEARCH SCREEN
-               ------------------------------------------------------------- */}
-            {activeTab === 'search' && (
-              <div className="px-4 sm:px-6 pt-4 space-y-4 max-w-4xl">
-                <div className="rounded-3xl p-6 bg-white dark:bg-[#0C1425] border border-slate-200 dark:border-slate-800 shadow-soft">
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
-                    {lang === 'mr' ? 'अखंड प्रवास मार्ग शोधक' : 'Multi-Modal Route Assembler'}
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-5">
-                    Connects your doorstep to the final destination across Auto, MSRTC Bus & Local Auto in 1 ticket.
-                  </p>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">
-                        Origin (Starting Hub)
-                      </label>
-                      <div className="flex items-center gap-2 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 text-sm font-semibold">
-                        <Icon name="mapPin" size={18} className="text-rose-500" />
-                        <span>Solapur (Ashok Chowk / ST Stand)</span>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1.5">
-                        Destination
-                      </label>
-                      <div className="flex items-center gap-2 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 text-sm font-semibold">
-                        <Icon name="mapPin" size={18} className="text-emerald-500" />
-                        <span>Pune (Swargate / Hinjawadi IT Park)</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Quick Hub Pills */}
-                  <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
-                      Popular Transit Hubs:
-                    </span>
-                    <div className="flex flex-wrap gap-2">
-                      {['Solapur Old ST Stand', 'Pandharpur Vitthal Temple', 'Swargate Pune', 'Shivajinagar Station', 'Indapur Highway Halt'].map((hub) => (
-                        <button
-                          key={hub}
-                          onClick={() => triggerReload('all')}
-                          className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:border-blue-500 border border-transparent transition"
-                        >
-                          {hub}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mt-5">
-                    <button
-                      onClick={() => {
-                        triggerReload('all');
-                        setActiveTab('home');
-                      }}
-                      className="w-full py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm shadow-md shadow-blue-500/20 active:scale-98 transition flex items-center justify-center gap-2"
-                    >
-                      <Icon name="search" size={18} />
-                      <span>Assemble Guaranteed Multi-Modal Routes</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-
-            {/* -------------------------------------------------------------
-                TAB 3: MY TRIPS & ACTIVE TICKET PASS
-               ------------------------------------------------------------- */}
-            {activeTab === 'trips' && (
-              <div className="px-4 sm:px-6 pt-4 space-y-4 max-w-4xl">
-                {confirmedBooking ? (
-                  <div className="rounded-3xl p-6 bg-white dark:bg-[#0C1425] border border-blue-500/40 shadow-soft relative overflow-hidden">
-                    {/* Laser Scanner animation effect */}
-                    <div className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent animate-laser pointer-events-none"></div>
-
-                    <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
-                      <div>
-                        <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
-                          CONFIRMED TICKET • PASS #{confirmedBooking.ticketId}
-                        </span>
-                        <h2 className="text-lg font-black text-slate-900 dark:text-white mt-1">
-                          Solapur ➔ Swargate Pune Multi-Modal Pass
-                        </h2>
-                      </div>
-                      <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
-                        <Icon name="qr" size={28} />
-                      </div>
-                    </div>
-
-                    {/* Leg details */}
-                    <div className="py-4 space-y-3">
-                      <div className="p-3.5 rounded-2xl bg-blue-50/60 dark:bg-blue-900/20 border border-blue-200/60 dark:border-blue-800/60 flex items-center justify-between">
-                        <div>
-                          <span className="text-[10px] font-bold uppercase text-blue-600 dark:text-blue-400">Leg 1: Auto Doorstep</span>
-                          <p className="text-sm font-bold text-slate-900 dark:text-white">Auto MH 13 AB 1234 (Ramesh)</p>
-                          <span className="text-xs text-slate-500">Locked fare: ₹60</span>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-[10px] text-slate-400 font-bold uppercase block">RIDE OTP</span>
-                          <span className="text-xl font-black text-blue-600 dark:text-blue-400 tracking-widest">{confirmedBooking.rideOtp}</span>
-                        </div>
-                      </div>
-
-                      <div className="p-3.5 rounded-2xl bg-amber-50/60 dark:bg-amber-900/20 border border-amber-200/60 dark:border-amber-800/60 flex items-center justify-between">
-                        <div>
-                          <span className="text-[10px] font-bold uppercase text-amber-600 dark:text-amber-400">Leg 2: MSRTC Express</span>
-                          <p className="text-sm font-bold text-slate-900 dark:text-white">MH 13 CU 4491 • Platform 4</p>
-                          <span className="text-xs text-slate-500">Seat: 14 (Window) • 30m buffer</span>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Boarding Confirmed</span>
-                        </div>
-                      </div>
-
-                      <div className="p-3.5 rounded-2xl bg-emerald-50/60 dark:bg-emerald-900/20 border border-emerald-200/60 dark:border-emerald-800/60 flex items-center justify-between">
-                        <div>
-                          <span className="text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400">Leg 3: Held Connecting Auto</span>
-                          <p className="text-sm font-bold text-slate-900 dark:text-white">Swargate Bay #2 (Santosh)</p>
-                          <span className="text-xs text-slate-500">Auto held on arrival at Pune</span>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Fare: ₹80 (Pre-paid)</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Marathi Destination card for Auto Driver */}
-                    <div className="p-4 rounded-2xl bg-slate-900 text-white flex items-center justify-between">
-                      <div>
-                        <span className="text-[10px] text-slate-400 uppercase font-bold">चालकासाठी मराठी पावती:</span>
-                        <p className="text-sm font-bold text-amber-400 font-mr mt-0.5">
-                          गंतव्य स्थान: सोलापूर एस.टी. स्टँड (प्लॅटफॉर्म ४)
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => speakMarathi("गंतव्य स्थान: सोलापूर एस.टी. स्टँड")}
-                        className="p-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white active:scale-95 transition"
-                        title="Speak in Marathi"
-                      >
-                        <Icon name="volume" size={18} />
-                      </button>
-                    </div>
-
-                    {/* Pre-Order Highway Dhaba Food Button */}
-                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                      <div>
-                        <p className="text-xs font-bold text-slate-900 dark:text-white">In-Transit Highway Dhaba Stop</p>
-                        <p className="text-[11px] text-slate-400">Hotel Jagdamba (Indapur) • 2:30 PM (4.5★ Audited)</p>
-                      </div>
-                      <button
-                        onClick={() => {
-                          const foodStory = STORIES_CONFIG.find(s => s.id === 'story-food');
-                          if (foodStory) setActiveStory(foodStory);
-                        }}
-                        className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center gap-1.5 transition"
-                      >
-                        <Icon name="utensils" size={14} />
-                        <span>Pre-Order Meal</span>
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="rounded-3xl p-8 bg-white dark:bg-[#0C1425] border border-slate-200 dark:border-slate-800 text-center space-y-3">
-                    <div className="w-14 h-14 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto">
-                      <Icon name="ticket" size={26} />
-                    </div>
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white">No active trip booked yet</h3>
-                    <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                      Choose from the cheapest, fastest, or comfort plans on the home screen to book your unified 3-leg ticket.
-                    </p>
-                    <button
-                      onClick={() => setActiveTab('home')}
-                      className="px-5 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs inline-flex items-center gap-1.5 shadow-sm transition"
-                    >
-                      <span>Explore Route Plans</span>
-                      <Icon name="arrowRight" size={14} />
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-
-            {/* -------------------------------------------------------------
-                TAB 4: TEEN SAFE RIDE SCREEN
-               ------------------------------------------------------------- */}
-            {activeTab === 'safety' && (
-              <div className="px-4 sm:px-6 pt-4 space-y-4 max-w-4xl">
-                <div className="rounded-3xl p-6 bg-white dark:bg-[#0C1425] border border-blue-500/30 shadow-soft">
-                  <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
-                        <Icon name="shield" size={22} />
-                      </div>
-                      <div>
-                        <h2 className="text-base font-extrabold text-slate-900 dark:text-white">
-                          Teen Safe Ride Mode (Ages 16–18)
-                        </h2>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                          Active parent oversight, encrypted tracking, and instant police dispatch
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => setTeenSafeEnabled(!teenSafeEnabled)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold transition ${
-                        teenSafeEnabled ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700'
-                      }`}
-                    >
-                      {teenSafeEnabled ? 'Active' : 'Disabled'}
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 my-4">
-                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#070D19] border border-slate-100 dark:border-slate-800">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase">Boarding PIN</span>
-                      <p className="text-xl font-black text-blue-600 dark:text-blue-400 mt-1">7302</p>
-                      <span className="text-[11px] text-slate-500">Driver must enter PIN before starting ride</span>
-                    </div>
-
-                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#070D19] border border-slate-100 dark:border-slate-800">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase">Parent Oversight</span>
-                      <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-1">Verified Linked</p>
-                      <span className="text-[11px] text-slate-500">Live GPS stream sent to parent's phone</span>
-                    </div>
-
-                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#070D19] border border-slate-100 dark:border-slate-800">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase">Police 112 Sync</span>
-                      <p className="text-sm font-bold text-rose-600 dark:text-rose-400 mt-1">Direct Priority</p>
-                      <span className="text-[11px] text-slate-500">Emergency dispatch at Indapur / Hadapsar</span>
-                    </div>
-                  </div>
-
-                  {/* Shareable tracking link */}
-                  <div className="p-3.5 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 flex items-center justify-between text-xs">
-                    <div className="truncate mr-2">
-                      <span className="font-bold text-blue-700 dark:text-blue-300">Live Tracking Link: </span>
-                      <span className="text-slate-500 select-all">https://sahiyatra.in/track/SY-78921-ENCRYPTED</span>
-                    </div>
-                    <button
-                      onClick={() => alert("Tracking link copied to clipboard!")}
-                      className="px-3 py-1.5 rounded-xl bg-blue-600 text-white font-bold shrink-0 hover:bg-blue-700 transition"
-                    >
-                      Copy Link
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-
-            {/* -------------------------------------------------------------
-                TAB 5: DRIVER PARTNER & ACCOUNT SCREEN
-               ------------------------------------------------------------- */}
-            {activeTab === 'profile' && (
-              <div className="px-4 sm:px-6 pt-4 space-y-4 max-w-4xl">
-                <div className="rounded-3xl p-6 bg-white dark:bg-[#0C1425] border border-slate-200 dark:border-slate-800 shadow-soft">
-                  <div className="flex items-center gap-4 pb-5 border-b border-slate-100 dark:border-slate-800">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-600 text-white flex items-center justify-center font-black text-xl shadow-md">
-                      RJ
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                        Ramesh Jadhav (Driver Partner)
-                      </h2>
-                      <p className="text-xs text-slate-500">
-                        Auto MH 13 AB 1234 • Solapur Old Stand Queue • 4.7★ (482 trips)
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="py-4 space-y-3">
-                    <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold uppercase">Zero Platform Commission</span>
-                        <span className="text-xs font-extrabold">100% Retained</span>
-                      </div>
-                      <p className="text-xs mt-1 opacity-90">
-                        SahiYatra charges zero commission on auto legs. Drivers receive full ₹60 first-mile and ₹80 last-mile upfront into UPI.
-                      </p>
-                    </div>
-
-                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#070D19] border border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                      <div>
-                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Incoming Pre-Paid Passenger Request</span>
-                        <p className="text-xs text-slate-400 mt-0.5">Ashok Chowk ➔ Solapur ST Stand (Fare: ₹60 Locked)</p>
-                      </div>
-                      <span className="px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-600 font-bold text-xs">
-                        OTP: 4821
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </main>
-
-
-          {/* =========================================================================
-              3. MOBILE BOTTOM TAB BAR (Visible on phones < 768px)
-             ========================================================================= */}
-          <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0C1425]/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 px-3 py-2 flex items-center justify-around shadow-lg">
-            {[
-              { id: 'home', label: 'Home', labelMr: 'मुख्य', icon: 'home' },
-              { id: 'search', label: 'Search', labelMr: 'शोध', icon: 'search' },
-              { id: 'trips', label: 'Trips', labelMr: 'तिकीट', icon: 'ticket' },
-              { id: 'safety', label: 'Safety', labelMr: 'सुरक्षा', icon: 'shield' },
-              { id: 'profile', label: 'Profile', labelMr: 'चालक', icon: 'user' },
-            ].map((tab) => {
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    setActiveTab(tab.id);
-                    if (tab.id === 'home') triggerReload('all');
-                  }}
-                  className={`flex flex-col items-center py-1 px-3 rounded-2xl transition-all ${
-                    isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
-                  }`}
-                >
-                  <Icon name={tab.icon} size={20} className={isActive ? 'scale-110 transition-transform' : ''} />
-                  <span className="text-[10px] font-bold mt-1">
-                    {lang === 'mr' ? tab.labelMr : tab.label}
-                  </span>
-                  {isActive && (
-                    <span className="w-1 h-1 rounded-full bg-blue-600 dark:bg-blue-400 mt-0.5"></span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-
-
-          {/* =========================================================================
-              4. BOTTOM SHEET SLIDE-UP MODAL (When any trip card is tapped)
-             ========================================================================= */}
-          {selectedTrip && (
-            <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm transition-opacity">
-              {/* Click outside backdrop to close */}
-              <div className="absolute inset-0" onClick={() => setSelectedTrip(null)}></div>
-
-              {/* Bottom Sheet Card */}
-              <div className="relative w-full max-w-xl max-h-[88vh] overflow-y-auto rounded-t-[32px] sm:rounded-3xl bg-white dark:bg-[#0C1425] border-t border-slate-200 dark:border-slate-800 p-6 shadow-2xl z-10 transition-transform duration-300 animate-in slide-in-from-bottom">
-                
-                {/* Drag Handle */}
-                <div className="w-12 h-1.5 rounded-full bg-slate-300 dark:bg-slate-700 mx-auto mb-4"></div>
-
-                {/* Header with Title and Close Button */}
-                <div className="flex items-start justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                  <div>
-                    <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                      {lang === 'mr' ? selectedTrip.badgeMr : selectedTrip.badge} Journey
-                    </span>
-                    <h3 className="text-lg font-black text-slate-900 dark:text-white mt-0.5">
-                      {lang === 'mr' ? selectedTrip.titleMr : selectedTrip.title}
-                    </h3>
-                  </div>
-                  <button
-                    onClick={() => setSelectedTrip(null)}
-                    className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
-                  >
-                    <Icon name="x" size={18} />
-                  </button>
-                </div>
-
-                {/* Leg-by-leg Fare Details & Ride Code */}
-                <div className="py-4 space-y-3">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                    Leg-by-Leg Cost Breakdown:
-                  </span>
-
-                  {selectedTrip.steps.map((st, i) => (
-                    <div key={i} className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#070D19] border border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
-                          {i + 1}
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-slate-900 dark:text-white">{st.name}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">{st.note}</p>
-                          {st.otp && (
-                            <span className="inline-block mt-1 text-[11px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 font-extrabold">
-                              Ride OTP: {st.otp}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <span className="text-sm font-black text-slate-900 dark:text-white">
-                        ₹{st.fare}
-                      </span>
-                    </div>
-                  ))}
-
-                  {/* Guaranteed Total Fare */}
-                  <div className="p-4 rounded-2xl bg-blue-50/70 dark:bg-blue-900/20 border border-blue-200/60 dark:border-blue-800/60 flex items-center justify-between">
-                    <div>
-                      <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase">Guaranteed Total Price</span>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">Zero surge • Transparent upfront locking</p>
-                    </div>
-                    <span className="text-2xl font-black text-slate-900 dark:text-white">
-                      ₹{selectedTrip.price}
-                    </span>
-                  </div>
-
-                  {/* TRANSPARENT POLICY BANNER (Mandatory Requirement) */}
-                  <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs">
-                    <p className="font-extrabold text-sm mb-1">
-                      No surge pricing. Late fee: ₹50 only if cancelled within 1 hour of departure.
-                    </p>
-                    <p className="opacity-90">
-                      Cancellations made more than 1 hour before departure receive a 100% instant refund.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Confirm & Book Button */}
-                <div className="pt-2">
-                  <button
-                    onClick={() => handleConfirmBooking(selectedTrip)}
-                    className="w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm shadow-lg shadow-blue-500/25 active:scale-98 transition flex items-center justify-center gap-2"
-                  >
-                    <Icon name="check" size={18} />
-                    <span>Book All Legs (₹{selectedTrip.price} All-Inclusive)</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-
-          {/* =========================================================================
-              5. STORY PREVIEW MODAL (Instagram-style Story Viewer)
-             ========================================================================= */}
-          {activeStory && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-              <div className="relative w-full max-w-md rounded-3xl bg-slate-900 border border-slate-800 text-white p-6 shadow-2xl overflow-hidden">
-                {/* Progress bar at top */}
-                <div className="w-full h-1 bg-slate-800 rounded-full mb-4 overflow-hidden">
-                  <div className="h-full bg-blue-500 animate-flow-line w-full"></div>
-                </div>
-
-                {/* Story Header */}
-                <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                  <div className="flex items-center gap-2.5">
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-tr ${activeStory.gradient} flex items-center justify-center text-white`}>
-                      <Icon name={activeStory.icon} size={20} />
-                    </div>
-                    <div>
-                      <h4 className="font-extrabold text-sm text-white">
-                        {lang === 'mr' ? activeStory.titleMr : activeStory.title}
-                      </h4>
-                      <span className="text-[11px] text-slate-400">{activeStory.subtitle}</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setActiveStory(null)}
-                    className="p-1.5 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white"
-                  >
-                    <Icon name="x" size={18} />
-                  </button>
-                </div>
-
-                {/* Story Body */}
-                <div className="py-5 space-y-3">
-                  <h3 className="text-lg font-black text-white">
-                    {lang === 'mr' ? activeStory.content.headlineMr : activeStory.content.headline}
-                  </h3>
-                  <p className="text-sm text-slate-300 leading-relaxed">
-                    {activeStory.content.desc}
-                  </p>
-
-                  {/* Special Dhaba Menu preview if it's the Food story */}
-                  {activeStory.id === 'story-food' && (
-                    <div className="mt-4 space-y-2 pt-3 border-t border-slate-800">
-                      <span className="text-xs font-bold text-amber-400 uppercase tracking-wider block">
-                        Quick Dhaba Stop Menu (Hotel Jagdamba):
-                      </span>
-                      {DHABA_ITEMS.map((item) => (
-                        <div key={item.id} className="p-2.5 rounded-xl bg-slate-800/80 flex items-center justify-between text-xs">
-                          <div>
-                            <span className="font-bold text-white">{lang === 'mr' ? item.nameMr : item.name}</span>
-                            <span className="text-slate-400 block">{item.prep}</span>
-                          </div>
-                          <span className="font-black text-amber-400">₹{item.price}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Story Action Button */}
-                <button
-                  onClick={() => {
-                    const id = activeStory.id;
-                    setActiveStory(null);
-                    if (id === 'story-cheapest') triggerReload('cheapest');
-                    else if (id === 'story-fastest') triggerReload('fastest');
-                    else if (id === 'story-comfort') triggerReload('comfort');
-                    else if (id === 'story-safety') setActiveTab('safety');
-                    else if (id === 'story-food') setActiveTab('trips');
-                  }}
-                  className="w-full py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm shadow-md transition"
-                >
-                  {activeStory.content.actionText}
-                </button>
-              </div>
-            </div>
-          )}
-
-
-          {/* =========================================================================
-              6. SOS EMERGENCY POPUP (Never hidden behind a gesture)
-             ========================================================================= */}
-          {showSosModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-              <div className="w-full max-w-sm rounded-3xl bg-slate-900 border-2 border-red-500 text-white p-6 shadow-2xl text-center space-y-4">
-                <div className="w-16 h-16 rounded-full bg-red-600/20 border-2 border-red-500 flex items-center justify-center text-red-500 mx-auto animate-pulse">
-                  <Icon name="phone" size={30} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-black text-white">Emergency Assistance</h3>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Connect immediately to Maharashtra Police 112 with your real-time GPS coordinate stream.
-                  </p>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-slate-800/80 text-left text-xs space-y-1">
-                  <p className="text-slate-400">Current Trip: <span className="text-white font-semibold">Solapur-Pune NH65</span></p>
-                  <p className="text-slate-400">Active Vehicle: <span className="text-white font-semibold">MH 13 AB 1234</span></p>
-                  <p className="text-slate-400">Driver: <span className="text-white font-semibold">Ramesh Jadhav (4.7★)</span></p>
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      alert("Connecting to Emergency Hotline 112... Live GPS dispatched.");
-                      setShowSosModal(false);
-                    }}
-                    className="flex-1 py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-extrabold text-sm shadow-lg shadow-red-600/30 transition"
-                  >
-                    Call 112 Now
-                  </button>
-                  <button
-                    onClick={() => setShowSosModal(false)}
-                    className="px-4 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm transition"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">◎</div>
+        <div><strong>SahiYatra</strong><span>Whole trip. One pass.</span></div>
+      </div>
+      <nav class="nav">
+        <button class="active" data-action="home">⌂ &nbsp; Home</button>
+        <button data-action="search">⌕ &nbsp; Search route</button>
+        <button data-action="trips">◇ &nbsp; My trips</button>
+        <button data-action="food">♢ &nbsp; Food stops</button>
+        <button data-action="safety">⊙ &nbsp; Safety</button>
+      </nav>
+      <div class="side-status">
+        <small>TRAVEL STATUS</small>
+        <strong>Solapur → Pune</strong>
+        <small>NH65 corridor active</small>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div class="search"><span>⌕</span><input id="routeSearch" placeholder="Search Solapur or Pune" /></div>
+        <div class="controls">
+          <button class="icon-button" id="languageButton">MR</button>
+          <button class="icon-button" id="themeButton">◐</button>
+          <button class="icon-button sos" id="sosButton">SOS 112</button>
         </div>
-      );
-    }
+      </header>
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+      <section class="dashboard">
+        <article class="hero glass">
+          <div>
+            <div class="eyebrow">Good morning, traveler</div>
+            <h1>Plan the whole.<em>Lock one fare.</em></h1>
+            <div class="route-line"><span class="dot"></span><b>Solapur</b><span class="path"></span><b>Pune</b><span class="dot"></span></div>
+          </div>
+          <div class="weather">
+            <small class="eyebrow">Solapur</small>
+            <strong>29°</strong>
+            <p>Clear roads · Good conditions</p>
+            <div class="weather-grid">
+              <span>Now<b>29°</b></span><span>10 AM<b>31°</b></span><span>12 PM<b>33°</b></span><span>2 PM<b>32°</b></span>
+            </div>
+          </div>
+        </article>
+
+        <div class="side-column">
+          <article class="reminders glass">
+            <div class="reminders-head"><h3>Trip reminders</h3><span class="count">3</span></div>
+            <div class="reminder"><span class="ring"></span>Carry ride OTP 4821</div>
+            <div class="reminder"><span class="ring"></span>Departure at 06:30 AM</div>
+          </article>
+          <div class="quick-grid">
+            <button class="quick active"><span>FASTEST</span><b>4h 30m</b></button>
+            <button class="quick"><span>CHEAPEST</span><b>₹420</b></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="stories" aria-label="Trip highlights">
+        <button class="story" data-title="Cheapest"><span class="story-icon">₹</span><span><strong>Cheapest</strong><small>₹420 locked</small></span></button>
+        <button class="story" data-title="Fastest"><span class="story-icon">↗</span><span><strong>Fastest</strong><small>4h 30m</small></span></button>
+        <button class="story" data-title="Comfort"><span class="story-icon">◫</span><span><strong>Comfort</strong><small>AC sleeper</small></span></button>
+        <button class="story" data-title="Dhaba"><span class="story-icon">♨</span><span><strong>Food stop</strong><small>Pre-order</small></span></button>
+        <button class="story" data-title="Safety"><span class="story-icon">◎</span><span><strong>Safety</strong><small>Teen mode</small></span></button>
+      </section>
+
+      <section class="feed" aria-label="Available trips">
+        <article class="trip-card featured" data-name="Cheapest Solapur Pune">
+          <span class="badge">Best value</span>
+          <h3>Solapur → Pune</h3>
+          <p>06:30 AM · Via NH65 · 5h 40m</p>
+          <div class="legs"><span>Auto 20m</span><span>•</span><span>Bus 4h 45m</span><span>•</span><span>Auto 35m</span></div>
+          <strong class="fare">₹420</strong>
+        </article>
+        <article class="trip-card" data-name="Fastest Solapur Pune">
+          <span class="badge">Fastest</span>
+          <h3>Direct express</h3>
+          <p>07:15 AM · 4h 30m</p>
+          <strong class="fare">₹610</strong>
+        </article>
+        <article class="trip-card" data-name="Comfort Solapur Pune">
+          <span class="badge">Comfort</span>
+          <h3>AC sleeper</h3>
+          <p>08:00 AM · 4h 50m</p>
+          <strong class="fare">₹780</strong>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="active" data-action="home">⌂<br>Home</button>
+    <button data-action="search">⌕<br>Search</button>
+    <button data-action="trips">◇<br>Trips</button>
+    <button data-action="food">♨<br>Food</button>
+    <button data-action="safety">⊙<br>Safety</button>
+  </nav>
+
+  <div class="sheet" id="sheet">
+    <div class="sheet-panel">
+      <small class="eyebrow">All legs included</small>
+      <h2 id="sheetTitle">Cheapest journey</h2>
+      <p>Auto pickup · Bus seat · Final auto ride · Zero surge guarantee</p>
+      <div class="sheet-actions"><button class="book">Book trip</button><button class="close">Close</button></div>
+    </div>
+  </div>
+
+  <script>
+    const sheet = document.getElementById('sheet');
+    document.querySelectorAll('.trip-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.getElementById('sheetTitle').textContent = card.querySelector('h3').textContent;
+        sheet.querySelector('p').textContent = 'Auto pickup · Bus seat · Final auto ride · Zero surge guarantee';
+        bookButton.textContent = 'Book trip';
+        bookButton.disabled = false;
+        sheet.classList.add('open');
+      });
+    });
+    document.querySelector('.close').addEventListener('click', () => sheet.classList.remove('open'));
+    sheet.addEventListener('click', event => { if (event.target === sheet) sheet.classList.remove('open'); });
+    const routeSearch = document.getElementById('routeSearch');
+    routeSearch.addEventListener('input', event => {
+      const query = event.target.value.trim().toLowerCase();
+      document.querySelectorAll('.trip-card').forEach(card => {
+        card.style.display = !query || card.dataset.name.toLowerCase().includes(query) ? '' : 'none';
+      });
+    });
+    const bookButton = document.querySelector('.sheet-actions .book');
+    bookButton.addEventListener('click', () => {
+      bookButton.textContent = 'Booking confirmed ✓';
+      bookButton.disabled = true;
+    });
+    document.querySelectorAll('[data-action]').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('[data-action]').forEach(item => item.classList.remove('active'));
+        button.classList.add('active');
+        const action = button.dataset.action;
+        if (action === 'home') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (action === 'search') {
+          routeSearch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          routeSearch.focus();
+        } else if (action === 'trips') {
+          document.getElementById('sheetTitle').textContent = 'My trips';
+          sheet.querySelector('p').textContent = 'Solapur → Pune · Ticket SY-4821 · Departure 06:30 AM';
+          bookButton.textContent = 'Open active trip';
+          bookButton.disabled = false;
+          sheet.classList.add('open');
+        } else if (action === 'food') {
+          document.getElementById('sheetTitle').textContent = 'Dhaba pre-order';
+          sheet.querySelector('p').textContent = 'Maharashtrian thali ₹90 · Poha ₹30 · Masala chai ₹10';
+          bookButton.textContent = 'Pre-order food';
+          bookButton.disabled = false;
+          sheet.classList.add('open');
+        } else if (action === 'safety') {
+          document.getElementById('sheetTitle').textContent = 'Safety center';
+          sheet.querySelector('p').textContent = 'Teen mode · Boarding PIN 7302 · Emergency contacts · Police 112';
+          bookButton.textContent = 'Open SOS center';
+          bookButton.disabled = false;
+          sheet.classList.add('open');
+        }
+      });
+    });
+    document.querySelectorAll('.quick, .story, .nav button, .bottom-nav button').forEach(button => {
+      button.addEventListener('click', () => {
+        if (button.classList.contains('quick')) {
+          document.querySelectorAll('.quick').forEach(item => item.classList.remove('active'));
+          button.classList.add('active');
+        }
+        if (button.classList.contains('story')) {
+          document.getElementById('sheetTitle').textContent = button.dataset.title;
+          sheet.querySelector('p').textContent =
+            button.dataset.title === 'Safety'
+              ? 'Teen ride verification, boarding PIN and emergency contacts.'
+              : button.dataset.title + ' highlights for your Solapur to Pune journey.';
+          bookButton.textContent = button.dataset.title === 'Dhaba' ? 'Pre-order food' : 'Explore option';
+          bookButton.disabled = false;
+          sheet.classList.add('open');
+        }
+        if (button.parentElement.classList.contains('nav')) {
+          button.parentElement.querySelectorAll('button').forEach(item => item.classList.remove('active'));
+          button.classList.add('active');
+        }
+        if (button.parentElement.classList.contains('bottom-nav')) {
+          button.parentElement.querySelectorAll('button').forEach(item => item.classList.remove('active'));
+          button.classList.add('active');
+        }
+      });
+    });
+    document.getElementById('languageButton').addEventListener('click', event => {
+      event.currentTarget.textContent = event.currentTarget.textContent === 'MR' ? 'EN' : 'MR';
+    });
+    const themeButton = document.getElementById('themeButton');
+    themeButton.setAttribute('aria-label', 'Switch to light glass mode');
+    themeButton.addEventListener('click', event => {
+      const isLight = document.body.classList.toggle('light-glass');
+      event.currentTarget.textContent = isLight ? '☀' : '◐';
+      event.currentTarget.setAttribute('title', isLight ? 'Switch to dark glass mode' : 'Switch to light glass mode');
+      event.currentTarget.setAttribute('aria-label', event.currentTarget.title);
+    });
+    document.getElementById('sosButton').addEventListener('click', () => alert('Emergency assistance: calling Maharashtra Police 112'));
   </script>
 </body>
 </html>
