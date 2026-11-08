@@ -72,22 +72,23 @@
       min-height: 480px;
       position: relative;
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 36px;
-      padding: 56px clamp(20px, 6vw, 84px);
+      gap: 32px;
+      padding: 56px clamp(20px, 6vw, 84px) 80px;
       background:
-        linear-gradient(90deg, rgba(26,18,14,.92) 0%, rgba(58,36,24,.75) 55%, rgba(26,18,14,.25) 100%),
-        url("wallpaper.jpg") center 48% / cover no-repeat;
+        linear-gradient(90deg, rgba(26,18,14,.93) 0%, rgba(58,36,24,.82) 55%, rgba(26,18,14,.4) 100%),
+        url("wallpaper.jpg?v=2") center 48% / cover no-repeat;
       color: var(--linen);
     }
-    .hero-content { max-width: 580px; }
+    .hero-content { flex: 1 1 360px; max-width: 540px; }
     .hero-kicker { text-transform: uppercase; letter-spacing: 2.5px; font-size: 12px; font-weight: 700; color: var(--cognac); }
     .hero h1 {
       margin: 14px 0 18px;
       max-width: 610px;
       font-family: "Playfair Display", Georgia, serif;
-      font-size: clamp(40px, 5.2vw, 68px);
+      font-size: clamp(38px, 5vw, 64px);
       line-height: .98;
       letter-spacing: -2px;
       color: #FAF6F2;
@@ -95,33 +96,38 @@
     .hero p { max-width: 480px; margin: 0; line-height: 1.7; color: rgba(213, 196, 174, .88); }
     .ride-visuals {
       display: flex;
-      align-items: flex-end;
+      flex: 1 1 480px;
+      align-items: stretch;
       gap: 16px;
       z-index: 2;
+      flex-wrap: wrap;
+      justify-content: flex-start;
     }
     .auto-card {
-      width: 175px;
+      flex: 0 1 200px;
+      min-width: 175px;
       border-radius: 22px;
       border: 1px solid rgba(213,196,174,.28);
-      background: rgba(26, 18, 14, 0.88);
+      background: rgba(26, 18, 14, 0.92);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       box-shadow: 0 18px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.15);
-      padding: 10px;
+      padding: 12px;
       position: relative;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
       animation: float-bus 4s ease-in-out infinite 0.5s;
     }
     .auto-thumb-wrapper {
       width: 100%;
-      height: 110px;
+      height: 135px;
       border-radius: 14px;
       overflow: hidden;
       position: relative;
       background: #0f172a;
+      border: 1px solid rgba(213, 196, 174, 0.2);
     }
     .auto-img {
       width: 100%;
@@ -136,45 +142,46 @@
     }
     .auto-otp-badge {
       position: absolute;
-      top: 6px;
-      right: 6px;
+      top: 8px;
+      right: 8px;
       font-family: monospace;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 800;
       background: linear-gradient(135deg, #ea580c, #f59e0b);
       color: white;
-      padding: 2px 7px;
+      padding: 3px 8px;
       border-radius: 6px;
       box-shadow: 0 3px 8px rgba(0,0,0,0.5);
     }
     .auto-info strong {
       display: block;
       color: var(--linen);
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       line-height: 1.25;
     }
     .auto-info small {
       display: block;
       color: var(--cognac);
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 600;
-      margin-top: 2px;
+      margin-top: 3px;
     }
     .bus-photo-container {
       width: 100%;
-      height: 120px;
+      height: 190px;
       border-radius: 16px;
       overflow: hidden;
       position: relative;
       margin: 8px 0;
       border: 1px solid rgba(213, 196, 174, 0.25);
+      background: #000;
     }
     .bus-photo-img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: center;
+      object-position: center 38%;
       display: block;
       transition: transform 0.3s ease;
     }
@@ -182,9 +189,11 @@
       transform: scale(1.04);
     }
     .hero-bus-card {
-      width: min(420px, 100%);
+      flex: 1 1 320px;
+      max-width: 440px;
+      min-width: 280px;
       border-radius: 26px;
-      background: rgba(26, 18, 14, 0.82);
+      background: rgba(26, 18, 14, 0.92);
       border: 1px solid rgba(213, 196, 174, 0.25);
       backdrop-filter: blur(28px) saturate(150%);
       -webkit-backdrop-filter: blur(28px) saturate(150%);
@@ -392,6 +401,39 @@
     .sheet-actions button { min-height: 48px; border-radius: 13px; border: 0; font-weight: 800; }
     .book { color: #FAF6F2; background: linear-gradient(135deg, var(--caramel), var(--cognac)); box-shadow: 0 8px 20px rgba(107, 74, 46, .35); }
     .close { color: var(--linen); background: var(--charcoal); }
+    .sheet-vehicles {
+      display: grid;
+      gap: 10px;
+      margin: 16px 0;
+    }
+    .sheet-vehicle-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(58, 36, 24, 0.85);
+      border: 1px solid rgba(213, 196, 174, 0.2);
+    }
+    .sheet-v-img {
+      width: 52px;
+      height: 52px;
+      border-radius: 10px;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid rgba(213, 196, 174, 0.3);
+    }
+    .sheet-vehicle-item strong {
+      display: block;
+      font-size: 13px;
+      color: var(--linen);
+    }
+    .sheet-vehicle-item small {
+      display: block;
+      font-size: 11px;
+      color: var(--cognac);
+      margin-top: 2px;
+    }
     body.dark {
       --cream: #1A120E;
       --navy: #D5C4AE;
@@ -434,14 +476,170 @@
     body.dark .vote-button { background: #3A2418; color: #D5C4AE; border-color: rgba(213, 196, 174, 0.2); }
     body.dark .vote-button.selected { background: #6B4A2E; color: #FAF6F2; border-color: #A88462; }
     body.dark .vote-status { background: rgba(168, 132, 98, 0.18); color: #D5C4AE; }
+    /* Fleet & Visual Legs Styling */
+    .legs-visual {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+    .leg-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(26, 18, 14, 0.75);
+      border: 1px solid rgba(213, 196, 174, 0.25);
+      padding: 4px 9px 4px 5px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--linen);
+    }
+    .leg-pill.highlight {
+      background: rgba(107, 74, 46, 0.65);
+      border-color: rgba(168, 132, 98, 0.55);
+    }
+    .leg-icon-img {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      border: 1px solid rgba(213, 196, 174, 0.4);
+    }
+    .leg-arrow {
+      color: var(--cognac);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    /* Dedicated Maharashtra Transit Fleet Showcase */
+    .fleet-showcase-section {
+      margin-bottom: 46px;
+    }
+    .fleet-guarantee-pill {
+      font-size: 11px;
+      font-weight: 800;
+      color: #FAF6F2;
+      background: linear-gradient(135deg, var(--caramel), var(--cognac));
+      padding: 6px 14px;
+      border-radius: 999px;
+      box-shadow: 0 4px 14px rgba(107, 74, 46, 0.35);
+      white-space: nowrap;
+    }
+    .fleet-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    .fleet-item-card {
+      background: rgba(58, 36, 24, 0.92);
+      border: 1px solid rgba(213, 196, 174, 0.22);
+      border-radius: 24px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .fleet-item-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.5);
+      border-color: rgba(168, 132, 98, 0.45);
+    }
+    .fleet-img-wrap {
+      width: 100%;
+      height: 220px;
+      position: relative;
+      overflow: hidden;
+      background: #0f172a;
+    }
+    .fleet-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      transition: transform 0.4s ease;
+      display: block;
+    }
+    .fleet-item-card:hover .fleet-photo {
+      transform: scale(1.05);
+    }
+    .fleet-tag {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 8px;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      letter-spacing: 0.5px;
+    }
+    .fleet-tag.red {
+      background: linear-gradient(135deg, #b91c1c, #dc2626);
+    }
+    .fleet-tag.yellow {
+      background: linear-gradient(135deg, #ea580c, #d97706);
+    }
+    .fleet-content {
+      padding: 18px 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+    .fleet-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .fleet-title-row h3 {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--linen);
+      font-family: "Playfair Display", Georgia, serif;
+    }
+    .fleet-fare {
+      font-size: 12px;
+      font-weight: 800;
+      color: #FAF6F2;
+      background: rgba(107, 74, 46, 0.7);
+      padding: 3px 9px;
+      border-radius: 6px;
+      border: 1px solid rgba(213, 196, 174, 0.3);
+      white-space: nowrap;
+    }
+    .fleet-content p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.55;
+      color: rgba(213, 196, 174, 0.85);
+    }
+    .fleet-specs {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(213, 196, 174, 0.14);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--cognac);
+    }
+
     @media (max-width: 900px) {
       .topbar { height: 68px; padding: 0 20px; }
       .desktop-nav { display: none; }
       .hero {
         min-height: auto;
         flex-direction: column;
-        align-items: flex-start;
-        padding: 45px 20px 100px;
+        align-items: stretch;
+        padding: 40px 20px 72px;
         gap: 28px;
       }
       .hero-bus-card {
@@ -450,14 +648,32 @@
       }
       .ride-visuals {
         width: 100%;
-        display: grid;
-        grid-template-columns: 1fr 120px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
       }
-      .search-card { grid-template-columns: 1fr 1fr; margin-top: -62px; }
+      .auto-card {
+        width: 100%;
+        max-width: 100%;
+        flex-direction: row;
+        align-items: center;
+        gap: 14px;
+      }
+      .auto-thumb-wrapper {
+        width: 130px;
+        height: 95px;
+        flex-shrink: 0;
+      }
+      .search-card {
+        width: calc(100% - 32px);
+        grid-template-columns: 1fr 1fr;
+        margin-top: -36px;
+      }
       .field { border-right: 0; border-bottom: 1px solid var(--line); }
       .search-button { min-height: 56px; }
       .stories { display: flex; overflow-x: auto; padding-bottom: 6px; }
       .story { min-width: 150px; }
+      .fleet-grid { grid-template-columns: 1fr; }
       .trip-grid { grid-template-columns: 1fr 1fr; }
       .trip-card.featured { grid-column: span 2; }
       .bottom-nav {
@@ -468,24 +684,28 @@
       }
       .bottom-nav button { border: 0; background: transparent; color: var(--muted); font-size: 10px; }
       .bottom-nav button.active { color: var(--blue); font-weight: 800; }
-      body.dark .bottom-nav { background: rgba(23,30,52,.94); }
+      body.dark .bottom-nav { background: rgba(26,18,14,.95); border-color: rgba(213,196,174,.2); }
       .content { margin-bottom: 100px; }
     }
     @media (max-width: 560px) {
       .top-actions { gap: 5px; }
       #languageButton { display: none; }
-      .hero { min-height: 390px; align-items: end; padding-bottom: 90px; }
-      .hero h1 { font-size: 43px; }
+      .hero {
+        min-height: auto;
+        align-items: stretch;
+        padding: 28px 16px 56px;
+        gap: 20px;
+      }
+      .hero h1 { font-size: 38px; }
       .hero p { font-size: 13px; }
-      .ride-visuals { grid-template-columns: minmax(0, 1fr); }
-      .hero-bus-card { min-width: 0; }
-      .auto-card { width: 100%; max-width: 220px; justify-self: end; }
-      .search-card { width: calc(100% - 24px); grid-template-columns: 1fr 1fr; }
-      .field { min-height: 62px; padding: 7px 9px; }
+      .bus-photo-container { height: 160px; }
+      .search-card { width: calc(100% - 24px); grid-template-columns: 1fr; margin-top: -24px; }
+      .field { min-height: 58px; padding: 7px 9px; }
       .field:nth-child(3) { border-bottom: 0; }
       .search-button { grid-column: span 1; }
-      .content { width: calc(100% - 24px); margin-top: 42px; }
-      .section-heading h2 { font-size: 28px; }
+      .fleet-img-wrap { height: 180px; }
+      .content { width: calc(100% - 24px); margin-top: 36px; }
+      .section-heading h2 { font-size: 26px; }
       .trip-grid { grid-template-columns: 1fr; }
       .trip-card.featured { grid-column: span 1; }
     }
@@ -528,7 +748,7 @@
 
         <!-- Real Lal Pari Bus Photo Frame -->
         <div class="bus-photo-container" id="busPhotoFrame" style="display: block;">
-          <img src="lalpari.jpg" alt="MSRTC Lal Pari Real Bus" class="bus-photo-img" />
+          <img src="lalpari.jpg?v=2" alt="MSRTC Lal Pari Real Bus" class="bus-photo-img" />
         </div>
 
         <div class="bus-svg-container" id="busSvgContainer" style="display: none;">
@@ -643,7 +863,7 @@
 
       <div class="auto-card" aria-label="Maharashtra Doorstep Auto-rickshaw">
         <div class="auto-thumb-wrapper">
-          <img src="auto.jpg" alt="Maharashtra Doorstep Auto Rickshaw MH 13" class="auto-img" />
+          <img src="auto.jpg?v=2" alt="Maharashtra Doorstep Auto Rickshaw MH 13" class="auto-img" />
           <span class="auto-otp-badge">OTP 4821</span>
         </div>
         <div class="auto-info">
@@ -685,6 +905,56 @@
         </div>
       </section>
 
+      <!-- Dedicated Maharashtra Fleet Showcase: Real Lal Pari & Doorstep Auto -->
+      <section class="fleet-showcase-section">
+        <div class="section-heading">
+          <div>
+            <h2>महाराष्ट्र स्थानिक वाहने (Verified Transit Fleet)</h2>
+            <p>आपल्या प्रवासाची अधिकृत वाहने — थेट घरपोच रिक्षा आणि जलद लालपरी</p>
+          </div>
+          <span class="fleet-guarantee-pill">१००% हमी • शून्य सर्ज दर</span>
+        </div>
+        <div class="fleet-grid">
+          <div class="fleet-item-card">
+            <div class="fleet-img-wrap">
+              <img src="lalpari.jpg?v=2" alt="MSRTC Lal Pari Real Bus" class="fleet-photo" />
+              <span class="fleet-tag red">महाराष्ट्र राज्य परिवहन (MSRTC)</span>
+            </div>
+            <div class="fleet-content">
+              <div class="fleet-title-row">
+                <h3>अस्सल लालपरी (Lal Pari Express)</h3>
+                <span class="fleet-fare">₹३६० आसन हमी</span>
+              </div>
+              <p>महाराष्ट्राची जीवनवाहिनी. सोलापूर ते पुणे द्रुतगती प्रवास, निसर्गरम्य खिडकी आसन आणि अधिकृत फलाट क्र. ४ वरून थेट प्रस्थान.</p>
+              <div class="fleet-specs">
+                <span>✓ ५५ आसन क्षमता</span>
+                <span>✓ अधिकृत शासकीय बस</span>
+                <span>✓ NH-65 महामार्ग थांबा</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="fleet-item-card">
+            <div class="fleet-img-wrap">
+              <img src="auto.jpg?v=2" alt="Maharashtra Doorstep Auto Rickshaw" class="fleet-photo" />
+              <span class="fleet-tag yellow">घरपोच सीएनजी रिक्षा</span>
+            </div>
+            <div class="fleet-content">
+              <div class="fleet-title-row">
+                <h3>घरपोच सुरक्षित रिक्षा (Doorstep Auto)</h3>
+                <span class="fleet-fare">₹६० फिक्स दर</span>
+              </div>
+              <p>मीटरचे लॉक दर, शून्य जादा आकार आणि थेट घरासमोर आगमन. बस सुटण्याच्या १० मिनिटे आधी तुम्हाला बस स्टँडवर पोहचवण्याची खात्री.</p>
+              <div class="fleet-specs">
+                <span>✓ OTP सुरक्षा (४८२१)</span>
+                <span>✓ थेट घरपोच पिकअप</span>
+                <span>✓ शून्य कॅन्सलेशन शुल्क</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section>
         <div class="section-heading">
           <div><h2>Popular trips</h2><p>Solapur to Pune and nearby routes</p></div>
@@ -695,19 +965,35 @@
             <span class="badge">Best value</span>
             <h3>Solapur <span>→</span> Pune</h3>
             <p>06:30 AM · Via NH65 · 5h 40m</p>
-            <div class="legs"><span>Auto</span><span>•</span><span>Bus</span><span>•</span><span>Auto</span></div>
+            <div class="legs-visual">
+              <span class="leg-pill"><img src="auto.jpg?v=2" alt="Auto" class="leg-icon-img" /> घरपोच रिक्षा</span>
+              <span class="leg-arrow">➔</span>
+              <span class="leg-pill highlight"><img src="lalpari.jpg?v=2" alt="Lal Pari" class="leg-icon-img" /> लालपरी (MH13)</span>
+              <span class="leg-arrow">➔</span>
+              <span class="leg-pill"><img src="auto.jpg?v=2" alt="Connecting Auto" class="leg-icon-img" /> स्वारगेट रिक्षा</span>
+            </div>
             <strong class="fare">₹420</strong>
           </article>
           <article class="trip-card" data-name="Fastest Solapur Pune">
             <span class="badge">Fastest</span>
             <h3>Direct express</h3>
             <p>07:15 AM · 4h 30m</p>
+            <div class="legs-visual">
+              <span class="leg-pill"><img src="auto.jpg?v=2" alt="Auto" class="leg-icon-img" /> Auto</span>
+              <span class="leg-arrow">➔</span>
+              <span class="leg-pill highlight"><img src="lalpari.jpg?v=2" alt="Bus" class="leg-icon-img" /> Direct Express</span>
+            </div>
             <strong class="fare">₹610</strong>
           </article>
           <article class="trip-card" data-name="Comfort Solapur Pune">
             <span class="badge">Comfort</span>
             <h3>AC sleeper</h3>
             <p>08:00 AM · 4h 50m</p>
+            <div class="legs-visual">
+              <span class="leg-pill"><img src="auto.jpg?v=2" alt="Auto" class="leg-icon-img" /> AC Cab</span>
+              <span class="leg-arrow">➔</span>
+              <span class="leg-pill highlight">Shivshahi 2x2</span>
+            </div>
             <strong class="fare">₹780</strong>
           </article>
         </div>
@@ -728,6 +1014,25 @@
       <small>SAHIYATRA TRIP</small>
       <h2 id="sheetTitle">Journey details</h2>
       <p id="sheetText">Auto pickup · Bus seat · Final auto ride · Fixed fare</p>
+      
+      <!-- Vehicles In Your Booking -->
+      <div class="sheet-vehicles" id="sheetVehicles">
+        <div class="sheet-vehicle-item">
+          <img src="auto.jpg?v=2" alt="Doorstep Auto" class="sheet-v-img" />
+          <div>
+            <strong>घरपोच रिक्षा (Doorstep Auto)</strong>
+            <small>MH 13 AB 1234 • OTP 4821 • ₹60 Locked</small>
+          </div>
+        </div>
+        <div class="sheet-vehicle-item">
+          <img src="lalpari.jpg?v=2" alt="MSRTC Lal Pari" class="sheet-v-img" />
+          <div>
+            <strong>MSRTC लालपरी (Lal Pari Express)</strong>
+            <small>MH 13 Q 5421 • Seat 14 & 15 • Solapur Bay 4</small>
+          </div>
+        </div>
+      </div>
+
       <div class="restaurant-votes" id="restaurantVotes"></div>
       <div class="vote-status" id="voteStatus" hidden></div>
       <div class="sheet-actions">
@@ -919,7 +1224,7 @@
       });
     });
 
-    // Bus Model Interactive Toggle (Lal Pari vs Shivshahi)
+    // Bus Model Interactive Toggle (Photo vs Lal Pari 3D vs Shivshahi)
     const btnPhoto = document.getElementById('btnTogglePhoto');
     const btnLalpari = document.getElementById('btnToggleLalpari');
     const btnShivshahi = document.getElementById('btnToggleShivshahi');
@@ -935,57 +1240,54 @@
     const busStripe1 = document.getElementById('busStripe1');
     const busStripe2 = document.getElementById('busStripe2');
 
-    if (btnPhoto && btnLalpari && btnShivshahi && busPhotoFrame && busSvgContainer) {
+    if (btnPhoto) {
       btnPhoto.addEventListener('click', () => {
         btnPhoto.className = 'bus-toggle-btn active-lalpari';
-        btnLalpari.className = 'bus-toggle-btn';
-        btnShivshahi.className = 'bus-toggle-btn';
-        busPhotoFrame.style.display = 'block';
-        busSvgContainer.style.display = 'none';
-      });
-      btnLalpari.addEventListener('click', () => {
-        btnPhoto.className = 'bus-toggle-btn';
-        btnLalpari.className = 'bus-toggle-btn active-lalpari';
-        btnShivshahi.className = 'bus-toggle-btn';
-        busPhotoFrame.style.display = 'none';
-        busSvgContainer.style.display = 'block';
-      });
-      btnShivshahi.addEventListener('click', () => {
-        btnPhoto.className = 'bus-toggle-btn';
-        btnLalpari.className = 'bus-toggle-btn';
-        btnShivshahi.className = 'bus-toggle-btn active-shivshahi';
-        busPhotoFrame.style.display = 'none';
-        busSvgContainer.style.display = 'block';
+        if (btnLalpari) btnLalpari.className = 'bus-toggle-btn';
+        if (btnShivshahi) btnShivshahi.className = 'bus-toggle-btn';
+        if (busPhotoFrame) busPhotoFrame.style.display = 'block';
+        if (busSvgContainer) busSvgContainer.style.display = 'none';
+        if (busPlateDisplay) busPlateDisplay.textContent = 'MH 13 Q 5421';
+        if (busClassTitle) busClassTitle.textContent = 'अस्सल लालपरी (Lal Pari)';
+        if (busBayTitle) busBayTitle.textContent = 'फलाट क्र. ४ • सोलापूर आगार';
       });
     }
 
-    if (btnLalpari && btnShivshahi) {
+    if (btnLalpari) {
       btnLalpari.addEventListener('click', () => {
         btnLalpari.className = 'bus-toggle-btn active-lalpari';
-        btnShivshahi.className = 'bus-toggle-btn';
-        busLowerBody.setAttribute('fill', 'url(#lalpariRedGradient)');
-        busUpperRoof.setAttribute('fill', 'url(#lalpariCreamGradient)');
-        busStripe1.setAttribute('fill', '#fbbf24');
-        busStripe2.setAttribute('fill', '#ffffff');
-        busSideText.textContent = 'महाराष्ट्र राज्य मार्ग परिवहन महामंडळ • लालपरी';
-        busBoardText.textContent = 'सोलापूर ➔ पुणे';
-        busPlateDisplay.textContent = 'MH 13 Q 5421';
-        busClassTitle.textContent = 'साधी जलद बस (Lal Pari)';
-        busBayTitle.textContent = 'फलाट क्र. ४ • सोलापूर आगार';
+        if (btnPhoto) btnPhoto.className = 'bus-toggle-btn';
+        if (btnShivshahi) btnShivshahi.className = 'bus-toggle-btn';
+        if (busPhotoFrame) busPhotoFrame.style.display = 'none';
+        if (busSvgContainer) busSvgContainer.style.display = 'block';
+        if (busLowerBody) busLowerBody.setAttribute('fill', 'url(#lalpariRedGradient)');
+        if (busUpperRoof) busUpperRoof.setAttribute('fill', 'url(#lalpariCreamGradient)');
+        if (busStripe1) busStripe1.setAttribute('fill', '#fbbf24');
+        if (busStripe2) busStripe2.setAttribute('fill', '#ffffff');
+        if (busSideText) busSideText.textContent = 'महाराष्ट्र राज्य मार्ग परिवहन महामंडळ • लालपरी';
+        if (busBoardText) busBoardText.textContent = 'सोलापूर ➔ पुणे';
+        if (busPlateDisplay) busPlateDisplay.textContent = 'MH 13 Q 5421';
+        if (busClassTitle) busClassTitle.textContent = 'साधी जलद बस (Lal Pari)';
+        if (busBayTitle) busBayTitle.textContent = 'फलाट क्र. ४ • सोलापूर आगार';
       });
+    }
 
+    if (btnShivshahi) {
       btnShivshahi.addEventListener('click', () => {
         btnShivshahi.className = 'bus-toggle-btn active-shivshahi';
-        btnLalpari.className = 'bus-toggle-btn';
-        busLowerBody.setAttribute('fill', 'url(#shivshahiBodyGradient)');
-        busUpperRoof.setAttribute('fill', 'url(#shivshahiBodyGradient)');
-        busStripe1.setAttribute('fill', '#6B4A2E');
-        busStripe2.setAttribute('fill', '#A88462');
-        busSideText.textContent = 'MSRTC SHIVSHAHI • SOLAPUR DIV';
-        busBoardText.textContent = 'SHIVSHAHI AC';
-        busPlateDisplay.textContent = 'MH 13 CU 4491';
-        busClassTitle.textContent = '2x2 Air Suspension AC Pushback';
-        busBayTitle.textContent = 'Bay #4 · Solapur AC Terminal';
+        if (btnPhoto) btnPhoto.className = 'bus-toggle-btn';
+        if (btnLalpari) btnLalpari.className = 'bus-toggle-btn';
+        if (busPhotoFrame) busPhotoFrame.style.display = 'none';
+        if (busSvgContainer) busSvgContainer.style.display = 'block';
+        if (busLowerBody) busLowerBody.setAttribute('fill', 'url(#shivshahiBodyGradient)');
+        if (busUpperRoof) busUpperRoof.setAttribute('fill', 'url(#shivshahiBodyGradient)');
+        if (busStripe1) busStripe1.setAttribute('fill', '#6B4A2E');
+        if (busStripe2) busStripe2.setAttribute('fill', '#A88462');
+        if (busSideText) busSideText.textContent = 'MSRTC SHIVSHAHI • SOLAPUR DIV';
+        if (busBoardText) busBoardText.textContent = 'SHIVSHAHI AC';
+        if (busPlateDisplay) busPlateDisplay.textContent = 'MH 13 CU 4491';
+        if (busClassTitle) busClassTitle.textContent = '2x2 Air Suspension AC Pushback';
+        if (busBayTitle) busBayTitle.textContent = 'Bay #4 · Solapur AC Terminal';
       });
     }
 
